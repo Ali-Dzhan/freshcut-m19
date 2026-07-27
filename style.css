@@ -95,8 +95,8 @@ nav{
 }
 
 .ring-behind{
-  position:absolute; top:45%; left:50%; transform:translate(-50%,-50%);
-  width:min(115vw, 680px); height:min(115vw, 680px); border-radius:50%;
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:min(100vw, 600px); height:min(100vw, 600px); border-radius:50%;
   border:1.5px solid rgba(120,185,60,0.35);
   box-shadow:0 0 100px rgba(120,185,60,0.18);
   z-index:-1;
