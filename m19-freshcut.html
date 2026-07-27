@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M19 FreshCut — Бръснарски салон, Русе</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="glow-field"></div>
+
+<nav>
+  <div class="nav-inner">
+    <!-- LOGO: You can replace the text-based brand with an <img> tag for your logo -->
+    <a href="#" class="brand">
+    <span class="ring">
+        <img src="photos/logo.jpg" alt="FreshCut M19">
+    </span>
+    FreshCut <span class="mono" style="color:var(--green-hi); font-weight:700;">M19</span>
+    </a> 
+    <div class="nav-links">
+      <a href="#services">Услуги</a>
+      <a href="#reviews">Отзиви</a>
+      <a href="#booking">Резервация</a>
+      <a href="#contact">Контакти</a>
+    </div>
+    <a class="nav-cta" href="#booking">Запази час</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="ring-behind"></div>
+  <div class="eyebrow">Бръснарски салон · Русе</div>
+  <h1>Fresh<span>Cut</span><br>M19</h1>
+  <p class="sub">Прецизна подстрижка, чисто оформена брада, никакво чакане без предвидено време. Резервирай онлайн за секунди.</p>
+  <div class="hero-actions">
+    <a class="btn-primary" href="#booking">Запази час онлайн</a>
+    <a class="btn-ghost" href="tel:+359877976095">Обади се</a>
+  </div>
+  <div class="rating-strip">
+    <span class="stars">★★★★★</span>
+    <span>5.0 от 40 отзива в Google</span>
+  </div>
+</section>
+
+<section id="gallery-preview">
+    <div class="wrap">
+
+        <div class="section-head">
+            <div class="eyebrow">FreshCut M19</div>
+            <h2>Атмосферата в салона</h2>
+            <p>Професионализъм, внимание към детайла и модерна визия.</p>
+        </div>
+
+        <div class="gallery-grid">
+            <div class="gallery-item large">
+                <img src="photos\saloon.webp" alt="Salon">
+            </div>
+
+            <div class="gallery-item"inan
+                <img src="photos\outside.webp" alt="Fade">
+            </div>
+
+            <div class="gallery-item">
+                <img src="photos\cutting.webp" alt="Haircut">
+            </div>
+
+            <div class="gallery-item">
+                <img src="photos\cutting1.JPG" alt="Beard">
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<section id="services">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Ценоразпис</div>
+      <h2>Услуги &amp; цени</h2>
+      <p>Ориентировъчни цени — уточняват се на място според дължина и стил.</p>
+    </div>
+    <div class="services-grid">
+
+      <div class="service-card">
+        <!-- PHOTO: Replace the emoji with an <img> tag for the service photo -->
+        <div class="service-ring">✂️</div>
+        <h3>Подстригване</h3>
+        <p class="desc">Класическа или модерна визия, машинка и ножица, финиш с гореща кърпа.</p>
+        <div class="service-price"><span class="amount">20 лв</span><span class="dur">~30 мин</span></div>
+      </div>
+
+      <div class="service-card">
+        <!-- PHOTO: Replace the emoji with an <img> tag for the service photo -->
+        <div class="service-ring">🪒</div>
+        <h3>Оформяне на брада</h3>
+        <p class="desc">Прецизна линия, оформяне с бръснач и грижа с масло за брада.</p>
+        <div class="service-price"><span class="amount">15 лв</span><span class="dur">~20 мин</span></div>
+      </div>
+
+      <div class="service-card">
+        <!-- PHOTO: Replace the emoji with an <img> tag for the service photo -->
+        <div class="service-ring">🔥</div>
+        <h3>Подстригване + брада</h3>
+        <p class="desc">Пълен пакет — коса и брада в едно посещение, най-търсената комбинация.</p>
+        <div class="service-price"><span class="amount">30 лв</span><span class="dur">~45 мин</span></div>
+      </div>
+
+      <div class="service-card">
+        <!-- PHOTO: Replace the emoji with an <img> tag for the service photo -->
+        <div class="service-ring">👦</div>
+        <h3>Детска подстрижка</h3>
+        <p class="desc">За най-малките клиенти, спокойно и бързо, до 12 години.</p>
+        <div class="service-price"><span class="amount">15 лв</span><span class="dur">~20 мин</span></div>
+      </div>
+
+      <div class="service-card">
+        <!-- PHOTO: Replace the emoji with an <img> tag for the service photo -->
+        <div class="service-ring">💈</div>
+        <h3>Класическо бръснене</h3>
+        <p class="desc">Традиционно бръснене с бръснач, гореща кърпа и балсам.</p>
+        <div class="service-price"><span class="amount">18 лв</span><span class="dur">~25 мин</span></div>
+      </div>
+
+      <div class="service-card">
+        <!-- PHOTO: Replace the emoji with an <img> tag for the service photo -->
+        <div class="service-ring">✨</div>
+        <h3>VIP пакет</h3>
+        <p class="desc">Коса, брада, бръснене на детайли и грижа за лице — пълно разглезване.</p>
+        <div class="service-price"><span class="amount">45 лв</span><span class="dur">~70 мин</span></div>
+      </div>
+
+    </div>
+    <p class="price-note">Точните цени и услуги — <a href="tel:+359877976095" style="color:var(--green-hi);">уточни с M19 FreshCut</a>.</p>
+  </div>
+</section>
+
+<section id="reviews">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Какво казват клиентите</div>
+      <h2>Отзиви</h2>
+    </div>
+    <div class="review-summary">
+      <div class="score-badge">5.0</div>
+      <div class="score-meta">
+        <span class="stars">★★★★★</span>
+        въз основа на 40 отзива в Google
+      </div>
+    </div>
+    <div class="reviews-grid">
+
+      <div class="review-card">
+        <span class="stars">★★★★★</span>
+        <p>Клиентите редовно отбелязват изключителния професионализъм и приятелското отношение на екипа.</p>
+        <div class="who"><span>Ali-Dzhan S.</span><span>преди 2 седмици</span></div>
+      </div>
+
+      <div class="review-card">
+        <span class="stars">★★★★★</span>
+        <p>Топло, лично отношение и резултат, който си заслужава препоръката — това връща клиентите отново.</p>
+        <div class="who"><span>Sukru</span><span>преди 2 месеца</span></div>
+      </div>
+
+      <div class="review-card">
+        <span class="stars">★★★★★</span>
+        <p>Обслужването е описано като отлично, с любезен и много отзивчив персонал.</p>
+        <div class="who"><span>Üzeyir Ç.</span><span>преди месец</span></div>
+      </div>
+
+      <div class="review-card">
+        <span class="stars">★★★★★</span>
+        <p>Атмосферата в салона е приятна и уютна, а вниманието към детайла — забележимо.</p>
+        <div class="who"><span>Peti Todorova</span><span>преди 2 месеца</span></div>
+      </div>
+
+      <div class="review-card">
+        <span class="stars">★★★★★</span>
+        <p>Точност, стабилно качество и последователност при всяко посещение.</p>
+        <div class="who"><span>Mertan M.</span><span>преди 2 месеца</span></div>
+      </div>
+
+      <div class="review-card">
+        <span class="stars">★★★★★</span>
+        <p>Кратка и категорична препоръка — клиентите го определят просто като "топ".</p>
+        <div class="who"><span>Nikolay S.</span><span>преди 2 месеца</span></div>
+      </div>
+
+    </div>
+    <div class="reviews-link">
+      <a href="https://share.google/LlsqMACVHh5hsSUhf" target="_blank" rel="noopener">Виж всички 40 отзива в Google →</a>
+    </div>
+  </div>
+</section>
+
+<section id="booking">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Резервация</div>
+      <h2>Запази своя час</h2>
+      <p>Попълни формата — ще потвърдим часа по телефон или SMS.</p>
+    </div>
+
+    <div class="booking-panel">
+      <form class="form-body" id="bookingForm">
+        <div class="form-row">
+          <div>
+            <label for="name">Име</label>
+            <input type="text" id="name" required placeholder="Твоето име">
+          </div>
+          <div>
+            <label for="phone">Телефон</label>
+            <input type="tel" id="phone" required placeholder="08xx xxx xxx">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label for="service">Услуга</label>
+            <select id="service" required>
+              <option value="">Избери услуга</option>
+              <option>Подстригване — 20 лв</option>
+              <option>Оформяне на брада — 15 лв</option>
+              <option>Подстригване + брада — 30 лв</option>
+              <option>Детска подстрижка — 15 лв</option>
+              <option>Класическо бръснене — 18 лв</option>
+              <option>VIP пакет — 45 лв</option>
+            </select>
+          </div>
+          <div>
+            <label for="date">Дата</label>
+            <input type="date" id="date" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label for="time">Час</label>
+            <select id="time" required>
+              <option value="">Избери час</option>
+              <option>10:00</option><option>10:30</option><option>11:00</option>
+              <option>11:30</option><option>12:00</option><option>13:00</option>
+              <option>13:30</option><option>14:00</option><option>14:30</option>
+              <option>15:00</option><option>16:00</option><option>17:00</option>
+              <option>18:00</option><option>18:30</option>
+            </select>
+          </div>
+          <div></div>
+        </div>
+        <div class="form-row full">
+          <div>
+            <label for="note">Бележка (по желание)</label>
+            <textarea id="note" placeholder="Например: предпочитан бръснар, специално пожелание..."></textarea>
+          </div>
+        </div>
+        <div class="submit-row">
+          <button type="submit" class="btn-primary">Изпрати заявка</button>
+        </div>
+      </form>
+
+      <div class="confirm-box" id="confirmBox">
+        <div class="confirm-ring">✓</div>
+        <h3>Заявката е изпратена!</h3>
+        <p>Ще се свържем с теб на посочения телефон, за да потвърдим часа.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Намери ни</div>
+      <h2>Контакти</h2>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-card">
+        <h3>Информация</h3>
+        <div class="info-row">
+          <div class="ico">📍</div>
+          <div><div class="label">Адрес</div><div class="val">ж.к. Възраждане, Алеи "Възраждане" 2, 7002 Русе</div></div>
+        </div>
+        <div class="info-row">
+          <div class="ico">📞</div>
+          <div><div class="label">Телефон</div><div class="val"><a href="tel:+359877976095">087 797 6095</a></div></div>
+        </div>
+        <div class="info-row">
+          <div class="ico">⭐</div>
+          <div><div class="label">Рейтинг</div><div class="val">5.0 / 5 · 40 отзива</div></div>
+        </div>
+        <table class="hours-table">
+          <tr><td>Понеделник</td><td>Затворено</td></tr>
+          <tr><td>Вторник</td><td>10:00–19:00</td></tr>
+          <tr><td>Сряда</td><td>10:00–19:00</td></tr>
+          <tr><td>Четвъртък</td><td>10:00–19:00</td></tr>
+          <tr><td>Петък</td><td>10:00–19:00</td></tr>
+          <tr><td>Събота</td><td>10:00–18:00</td></tr>
+          <tr><td>Неделя</td><td>Затворено</td></tr>
+        </table>
+      </div>
+      <div class="map-frame">
+        <iframe
+          src="https://maps.google.com/maps?q=%D0%B6.%D0%BA.%20%D0%92%D1%8A%D0%B7%D1%80%D0%B0%D0%B6%D0%B4%D0%B0%D0%BD%D0%B5%20%D0%90%D0%BB%D0%B5%D0%B8%20%D0%92%D1%8A%D0%B7%D1%80%D0%B0%D0%B6%D0%B4%D0%B0%D0%BD%D0%B5%202%2C%207002%20%D0%A0%D1%83%D1%81%D0%B5&output=embed"
+          loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="brand" style="display:flex; justify-content:center;">
+    <span class="ring">
+      <img src="photos/logo.jpg" alt="FreshCut M19">
+    </span>
+    FreshCut <span class="mono" style="color:var(--green-hi);font-weight:700;">M19</span>
+  </div>
+
+  ж.к. Възраждане, Алеи "Възраждане" 2, 7002 Русе · 087 797 6095
+</footer>
+
+<script src="script.js"></script>
+
+</body>
+</html>
