@@ -15,20 +15,37 @@
 
 <nav>
   <div class="nav-inner">
-    <!-- LOGO: You can replace the text-based brand with an <img> tag for your logo -->
     <a href="#" class="brand">
-    <span class="ring">
-        <img src="photos/logo.jpg" alt="FreshCut M19">
-    </span>
-    FreshCut <span class="mono" style="color:var(--green-hi); font-weight:700;">M19</span>
+      <span class="ring">
+          <img src="photos/logo.jpg" alt="FreshCut M19">
+      </span>
+      FreshCut <span class="mono" style="color:var(--green-hi); font-weight:700;">M19</span>
     </a> 
+    
     <div class="nav-links">
       <a href="#services">Услуги</a>
       <a href="#reviews">Отзиви</a>
       <a href="#booking">Резервация</a>
       <a href="#contact">Контакти</a>
     </div>
+
     <a class="nav-cta" href="#booking">Запази час</a>
+
+    <!-- Green Mobile Burger Icon Button -->
+    <button class="burger" id="burgerBtn" aria-label="Меню">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+
+  <!-- Mobile Menu Dropdown -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#services" class="mobile-link">Услуги</a>
+    <a href="#reviews" class="mobile-link">Отзиви</a>
+    <a href="#booking" class="mobile-link">Резервация</a>
+    <a href="#contact" class="mobile-link">Контакти</a>
+    <a href="#booking" class="mobile-cta">Запази час</a>
   </div>
 </nav>
 
@@ -49,7 +66,6 @@
 
 <section id="gallery-preview">
     <div class="wrap">
-
         <div class="section-head">
             <div class="eyebrow">FreshCut M19</div>
             <h2>Атмосферата в салона</h2>
@@ -58,22 +74,15 @@
 
         <div class="gallery-grid">
             <div class="gallery-item large">
-                <img src="photos\saloon.webp" alt="Salon">
+                <img src="photos/saloon.webp" alt="Salon">
             </div>
-
-            <!-- <div class="gallery-item"inan
-                <img src="photos\outside.webp" alt="Fade">
-            </div> -->
-
             <div class="gallery-item">
-                <img src="photos\cutting.webp" alt="Haircut">
+                <img src="photos/cutting.webp" alt="Haircut">
             </div>
-
             <div class="gallery-item">
-                <img src="photos\cutting1.JPG" alt="Beard">
+                <img src="photos/cutting1.JPG" alt="Beard">
             </div>
         </div>
-
     </div>
 </section>
 
@@ -87,7 +96,6 @@
     <div class="services-grid">
 
       <div class="service-card">
-        <!-- PHOTO: Replace the emoji with an <img> tag for the service photo -->
         <div class="service-ring">✂️</div>
         <h3>Подстригване</h3>
         <p class="desc">Класическа или модерна визия, машинка и ножица, финиш с гореща кърпа.</p>
@@ -95,7 +103,6 @@
       </div>
 
       <div class="service-card">
-        <!-- PHOTO: Replace the emoji with an <img> tag for the service photo -->
         <div class="service-ring">🪒</div>
         <h3>Оформяне на брада</h3>
         <p class="desc">Прецизна линия, оформяне с бръснач и грижа с масло за брада.</p>
@@ -103,7 +110,6 @@
       </div>
 
       <div class="service-card">
-        <!-- PHOTO: Replace the emoji with an <img> tag for the service photo -->
         <div class="service-ring">🔥</div>
         <h3>Подстригване + брада</h3>
         <p class="desc">Пълен пакет — коса и брада в едно посещение, най-търсената комбинация.</p>
@@ -111,7 +117,6 @@
       </div>
 
       <div class="service-card">
-        <!-- PHOTO: Replace the emoji with an <img> tag for the service photo -->
         <div class="service-ring">👦</div>
         <h3>Детска подстрижка</h3>
         <p class="desc">За най-малките клиенти, спокойно и бързо, до 12 години.</p>
@@ -119,7 +124,6 @@
       </div>
 
       <div class="service-card">
-        <!-- PHOTO: Replace the emoji with an <img> tag for the service photo -->
         <div class="service-ring">💈</div>
         <h3>Класическо бръснене</h3>
         <p class="desc">Традиционно бръснене с бръснач, гореща кърпа и балсам.</p>
@@ -127,7 +131,6 @@
       </div>
 
       <div class="service-card">
-        <!-- PHOTO: Replace the emoji with an <img> tag for the service photo -->
         <div class="service-ring">✨</div>
         <h3>VIP пакет</h3>
         <p class="desc">Коса, брада, бръснене на детайли и грижа за лице — пълно разглезване.</p>
@@ -206,66 +209,102 @@
     </div>
 
     <div class="booking-panel">
-      <form class="form-body" id="bookingForm">
-        <div class="form-row">
-          <div>
-            <label for="name">Име</label>
-            <input type="text" id="name" required placeholder="Твоето име">
-          </div>
-          <div>
-            <label for="phone">Телефон</label>
-            <input type="tel" id="phone" required placeholder="08xx xxx xxx">
-          </div>
-        </div>
-        <div class="form-row">
-          <div>
-            <label for="service">Услуга</label>
-            <select id="service" required>
-              <option value="">Избери услуга</option>
-              <option>Подстригване — 20 лв</option>
-              <option>Оформяне на брада — 15 лв</option>
-              <option>Подстригване + брада — 30 лв</option>
-              <option>Детска подстрижка — 15 лв</option>
-              <option>Класическо бръснене — 18 лв</option>
-              <option>VIP пакет — 45 лв</option>
-            </select>
-          </div>
-          <div>
-            <label for="date">Дата</label>
-            <input type="date" id="date" required>
-          </div>
-        </div>
-        <div class="form-row">
-          <div>
-            <label for="time">Час</label>
-            <select id="time" required>
-              <option value="">Избери час</option>
-              <option>10:00</option><option>10:30</option><option>11:00</option>
-              <option>11:30</option><option>12:00</option><option>13:00</option>
-              <option>13:30</option><option>14:00</option><option>14:30</option>
-              <option>15:00</option><option>16:00</option><option>17:00</option>
-              <option>18:00</option><option>18:30</option>
-            </select>
-          </div>
-          <div></div>
-        </div>
-        <div class="form-row full">
-          <div>
-            <label for="note">Бележка (по желание)</label>
-            <textarea id="note" placeholder="Например: предпочитан бръснар, специално пожелание..."></textarea>
-          </div>
-        </div>
-        <div class="submit-row">
-          <button type="submit" class="btn-primary">Изпрати заявка</button>
-        </div>
-      </form>
-
-      <div class="confirm-box" id="confirmBox">
-        <div class="confirm-ring">✓</div>
-        <h3>Заявката е изпратена!</h3>
-        <p>Ще се свържем с теб на посочения телефон, за да потвърдим часа.</p>
+  <form class="form-body" id="bookingForm">
+    
+    <!-- User Info Row -->
+    <div class="form-row">
+      <div>
+        <label for="name">Име</label>
+        <input type="text" id="name" required placeholder="Твоето име">
+      </div>
+      <div>
+        <label for="phone">Телефон</label>
+        <input type="tel" id="phone" required placeholder="08xx xxx xxx">
       </div>
     </div>
+
+    <!-- Service Selector Row -->
+    <div class="form-row full">
+      <div>
+        <label for="service">Услуга</label>
+        <select id="service" required>
+          <option value="">Избери услуга</option>
+          <option>Подстригване — 20 лв</option>
+          <option>Оформяне на брада — 15 лв</option>
+          <option>Подстригване + брада — 30 лв</option>
+          <option>Детска подстрижка — 15 лв</option>
+          <option>Класическо бръснене — 18 лв</option>
+          <option>VIP пакет — 45 лв</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- CALENDAR UI (App-style) -->
+    <div class="picker-section">
+      <div class="picker-header">
+        <span class="picker-month" id="currentMonth">Юли 2026</span>
+        <div class="picker-nav">
+          <button type="button" class="btn-picker-arrow">&lt;</button>
+          <button type="button" class="btn-picker-arrow">&gt;</button>
+        </div>
+      </div>
+
+      <div class="calendar-days-header">
+        <span>ПОН</span><span>ВТО</span><span>СРЯ</span><span>ЧЕТ</span><span>ПЕТ</span><span>СЪБ</span><span>НЕД</span>
+      </div>
+
+      <div class="calendar-grid">
+        <span class="day disabled">29</span><span class="day disabled">30</span>
+        <span class="day">1</span><span class="day">2</span><span class="day">3</span><span class="day">4</span><span class="day">5</span>
+        <span class="day">6</span><span class="day">7</span><span class="day">8</span><span class="day">9</span><span class="day">10</span><span class="day">11</span><span class="day">12</span>
+        <span class="day">13</span><span class="day">14</span><span class="day">15</span><span class="day active">16</span><span class="day">17</span><span class="day">18</span><span class="day">19</span>
+        <span class="day">20</span><span class="day">21</span><span class="day">22</span><span class="day">23</span><span class="day">24</span><span class="day">25</span><span class="day">26</span>
+        <span class="day">27</span><span class="day">28</span><span class="day">29</span><span class="day">30</span><span class="day">31</span>
+      </div>
+    </div>
+
+    <!-- TIME PERIOD FILTER -->
+    <div class="picker-section">
+      <label>Свободни часове</label>
+      <div class="period-pills">
+        <button type="button" class="period-pill active">☀️ Сутрин</button>
+        <button type="button" class="period-pill">🌤️ Следобед</button>
+        <button type="button" class="period-pill">🌙 Вечер</button>
+      </div>
+    </div>
+
+    <!-- TIME SLOTS ROW -->
+    <div class="picker-section">
+      <label>Избери час</label>
+      <div class="time-slots-container">
+        <button type="button" class="time-slot active">08:00</button>
+        <button type="button" class="time-slot">08:30</button>
+        <button type="button" class="time-slot">09:00</button>
+        <button type="button" class="time-slot">09:30</button>
+        <button type="button" class="time-slot">10:00</button>
+        <button type="button" class="time-slot">10:30</button>
+      </div>
+    </div>
+
+    <!-- Note Row -->
+    <div class="form-row full" style="margin-top: 20px;">
+      <div>
+        <label for="note">Бележка (по желание)</label>
+        <textarea id="note" placeholder="Например: предпочитан бръснар, специално пожелание..."></textarea>
+      </div>
+    </div>
+
+    <div class="submit-row">
+      <button type="submit" class="btn-primary">Запази час</button>
+    </div>
+  </form>
+
+  <div class="confirm-box" id="confirmBox">
+    <div class="confirm-ring">✓</div>
+    <h3>Заявката е изпратена!</h3>
+    <p>Ще се свържем с теб на посочения телефон, за да потвърдим часа.</p>
+  </div>
+</div>
   </div>
 </section>
 
@@ -324,3 +363,4 @@
 
 </body>
 </html>
+
