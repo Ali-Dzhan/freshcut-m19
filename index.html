@@ -49,18 +49,23 @@
   </div>
 </nav>
 
+<!-- === STEP 1: Updated HTML for Hero Section === -->
 <section class="hero">
-  <div class="ring-behind"></div>
-  <div class="eyebrow">Бръснарски салон · Русе</div>
-  <h1>Fresh<span>Cut</span><br>M19</h1>
-  <p class="sub">Прецизна подстрижка, чисто оформена брада, никакво чакане без предвидено време. Резервирай онлайн за секунди.</p>
-  <div class="hero-actions">
-    <a class="btn-primary" href="#booking">Запази час онлайн</a>
-    <a class="btn-ghost" href="tel:+359877976095">Обади се</a>
-  </div>
-  <div class="rating-strip">
-    <span class="stars">★★★★★</span>
-    <span>5.0 от 40 отзива в Google</span>
+  <!-- New Canvas Element for the animation -->
+  <canvas id="fluidRingCanvas"></canvas>
+  
+  <div class="hero-content-wrapper">
+    <div class="eyebrow">Бръснарски салон · Русе</div>
+    <h1>Fresh<span>Cut</span><br>M19</h1>
+    <p class="sub">Прецизна подстрижка, чисто оформена брада, никакво чакане без предвидено време. Резервирай онлайн за секунди.</p>
+    <div class="hero-actions">
+      <a class="btn-primary" href="#booking">Запази час онлайн</a>
+      <a class="btn-ghost" href="tel:+359877976095">Обади се</a>
+    </div>
+    <div class="rating-strip">
+      <span class="stars">★★★★★</span>
+      <span>5.0 от 40 отзива в Google</span>
+    </div>
   </div>
 </section>
 
@@ -264,13 +269,14 @@
     </div>
 
     <!-- TIME PERIOD FILTER -->
-    <div class="picker-section">
-      <label>Свободни часове</label>
-      <div class="period-pills">
-        <button type="button" class="period-pill active">☀️ Сутрин</button>
-        <button type="button" class="period-pill">🌤️ Следобед</button>
-        <button type="button" class="period-pill">🌙 Вечер</button>
-      </div>
+    <div class="period-pills">
+    <button type="button" class="period-pill disabled">Пон</button>
+    <button type="button" class="period-pill active" data-day="tuesday">Вто</button>
+    <button type="button" class="period-pill" data-day="wednesday">Сря</button>
+    <button type="button" class="period-pill" data-day="thursday">Чет</button>
+    <button type="button" class="period-pill" data-day="friday">Пет</button>
+    <button type="button" class="period-pill" data-day="saturday">Съб</button>
+    <button type="button" class="period-pill disabled">Нед</button>
     </div>
 
     <!-- TIME SLOTS ROW -->
@@ -283,6 +289,23 @@
         <button type="button" class="time-slot">09:30</button>
         <button type="button" class="time-slot">10:00</button>
         <button type="button" class="time-slot">10:30</button>
+        <button type="button" class="time-slot active">11:00</button>
+        <button type="button" class="time-slot">11:30</button>
+        <button type="button" class="time-slot">12:00</button>
+        <button type="button" class="time-slot">12:30</button>
+        <button type="button" class="time-slot">13:00</button>
+        <button type="button" class="time-slot">13:30</button>
+        <button type="button" class="time-slot active">14:00</button>
+        <button type="button" class="time-slot">14:30</button>
+        <button type="button" class="time-slot">15:00</button>
+        <button type="button" class="time-slot">15:30</button>
+        <button type="button" class="time-slot">16:00</button>
+        <button type="button" class="time-slot">16:30</button>
+        <button type="button" class="time-slot active">17:00</button>
+        <button type="button" class="time-slot">17:30</button>
+        <button type="button" class="time-slot">18:00</button>
+        <button type="button" class="time-slot">18:30</button>
+        <button type="button" class="time-slot">19:00</button>
       </div>
     </div>
 
