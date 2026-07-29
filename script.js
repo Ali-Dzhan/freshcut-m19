@@ -228,9 +228,32 @@ document.addEventListener("DOMContentLoaded", () => {
     ],
   };
 
-  const calendarDays = document.querySelectorAll(".calendar-grid .day:not(.disabled)");
   const slotsContainer = document.querySelector(".time-slots-container");
   const dayMap = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+  const submitBtn = document.querySelector('#bookingForm button[type="submit"]');
+
+  // Helper function to check booking state and toggle submit button
+  function updateSubmitButtonState() {
+    if (!submitBtn) return;
+    const activeDay = document.querySelector(".calendar-grid .day.active:not(.disabled)");
+    const activeSlot = document.querySelector(".time-slot.active");
+    submitBtn.disabled = !(activeDay && activeSlot);
+  }
+
+  // Disable Sundays (0) and Mondays (1)
+  document.querySelectorAll(".calendar-grid .day").forEach(day => {
+    if (day.classList.contains('disabled')) return; // Skip already disabled (past) days
+
+    const dayNumber = parseInt(day.textContent, 10);
+    const date = new Date(2026, 6, dayNumber); // Month is 0-indexed (6 = July)
+    const dayOfWeek = date.getDay();
+
+    if (dayOfWeek === 0 || dayOfWeek === 1) {
+        day.classList.add("disabled");
+    }
+  });
+
+  const calendarDays = document.querySelectorAll(".calendar-grid .day:not(.disabled)");
 
   function renderSlots(day) {
     if (!slotsContainer) return;
@@ -240,6 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!daySchedule || daySchedule.length === 0) {
       slotsContainer.innerHTML = `<p class="no-slots-message">Затворено. Моля, изберете друг ден.</p>`;
+      updateSubmitButtonState();
       return;
     }
 
@@ -254,16 +278,21 @@ document.addEventListener("DOMContentLoaded", () => {
         document.querySelectorAll(".time-slot").forEach((slot) => {
           slot.classList.remove("active");
         });
-
         button.classList.add("active");
+        updateSubmitButtonState();
       });
 
       slotsContainer.appendChild(button);
     });
+    updateSubmitButtonState();
   }
 
   calendarDays.forEach((day) => {
     day.addEventListener("click", () => {
+      // Clear active time slot when changing day
+      const activeSlot = document.querySelector(".time-slot.active");
+      if (activeSlot) activeSlot.classList.remove("active");
+
       calendarDays.forEach((d) => d.classList.remove("active"));
       day.classList.add("active");
 
@@ -275,12 +304,22 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Initial render based on the pre-selected day
-  const initiallyActiveDay = document.querySelector(".calendar-grid .day.active");
-  if (initiallyActiveDay) {
-    initiallyActiveDay.click();
-  } else if (calendarDays.length > 0) {
-    calendarDays[0].click();
+  const activeDay = document.querySelector(".calendar-grid .day.active");
+  if (activeDay && activeDay.classList.contains('disabled')) {
+    // If the pre-selected day is disabled (e.g., it's a Monday), remove active class
+    activeDay.classList.remove('active');
   }
+
+  // Trigger click on the first available day to show slots, or the active one if it's valid
+  const firstAvailableDay = document.querySelector(".calendar-grid .day:not(.disabled)");
+  const validActiveDay = document.querySelector(".calendar-grid .day.active:not(.disabled)");
+
+  if (validActiveDay) {
+    validActiveDay.click();
+  } else if (firstAvailableDay) {
+    firstAvailableDay.click();
+  }
+  updateSubmitButtonState();
 
  // ==========================================
   // 4. BOOKING FORM
@@ -340,36 +379,38 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Drag/Scroll to close on mobile
-    const modalContent = bookingModal.querySelector(".modal-content");
+    const modalContent = bookingModal.querySelector(".modal-content"); // The element that moves
+    const modalHeader = bookingModal.querySelector(".modal-header");   // The element to drag from
     let touchStartY = 0;
 
     const handleTouchStart = (e) => {
-      // Only on mobile and when scrolled to the top of the modal content
-      if (window.innerWidth <= 580 && modalContent.scrollTop === 0) {
+      // Only on mobile
+      if (window.innerWidth <= 580) {
         touchStartY = e.touches[0].clientY;
         modalContent.style.transition = "none"; // Allow smooth dragging
       } else {
         touchStartY = 0;
       }
     };
-
+    
     const handleTouchMove = (e) => {
       if (touchStartY === 0) return;
-
+    
       const touchY = e.touches[0].clientY;
       const deltaY = touchY - touchStartY;
-
+    
       if (deltaY > 0) { // Only allow dragging down
         e.preventDefault();
         modalContent.style.transform = `translateY(${deltaY}px)`;
       }
     };
-
+    
     const handleTouchEnd = (e) => {
       if (touchStartY === 0) return;
       const touchY = e.changedTouches[0].clientY;
       const deltaY = touchY - touchStartY;
       modalContent.style.transition = "transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)";
+      
       if (deltaY > 100) { // If dragged more than 100px, close it
         bookingModal.classList.remove("active");
         document.body.style.overflow = "";
@@ -378,9 +419,10 @@ document.addEventListener("DOMContentLoaded", () => {
       modalContent.style.transform = "";
       touchStartY = 0; // Reset for next touch
     };
-
-    modalContent.addEventListener("touchstart", handleTouchStart, { passive: false });
-    modalContent.addEventListener("touchmove", handleTouchMove, { passive: false });
-    modalContent.addEventListener("touchend", handleTouchEnd);
+    
+    // Attach listeners to the header, not the whole content
+    modalHeader.addEventListener("touchstart", handleTouchStart, { passive: false });
+    modalHeader.addEventListener("touchmove", handleTouchMove, { passive: false });
+    modalHeader.addEventListener("touchend", handleTouchEnd);
   }
 });
