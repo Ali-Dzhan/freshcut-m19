@@ -210,6 +210,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // These are now set globally within the DOMContentLoaded scope
+  let selectedTime = null;
+  let selectedDate = null;
+
+
   // ==========================================
   // 3. APPOINTMENT SCHEDULING LOGIC
   // ==========================================
@@ -449,16 +454,6 @@ document.addEventListener("DOMContentLoaded", () => {
 const form = document.getElementById("bookingForm");
 const confirmBox = document.getElementById("confirmBox");
 
-// These are now set globally by the calendar click and time slot click handlers
-let selectedTime = null;
-let selectedDate = null;
-
-// Track selected time
-document.addEventListener("click", (e) => {
-    if (e.target.classList.contains("time-slot")) {
-        selectedTime = e.target.textContent;
-    }
-});
 if (form && confirmBox) {
     form.addEventListener("submit", async function(e) {
         e.preventDefault();
@@ -467,6 +462,12 @@ if (form && confirmBox) {
                 "Моля изберете дата и час."
             );
             return;
+        }
+
+        // Update selectedTime one last time before submitting
+        const activeSlot = document.querySelector(".time-slot.active");
+        if (activeSlot) {
+          selectedTime = activeSlot.textContent;
         }
         const formData = new FormData(form);
         const booking = {
