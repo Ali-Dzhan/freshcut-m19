@@ -7,19 +7,22 @@ const db = require("./database");
 
 const app = express();
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000; // Updated to respect Render's dynamic port assignment
 
 const JWT_SECRET = "freshcut-secret-key";
 
-
+// ==========================
+// CORS CONFIGURATION
+// ==========================
 const allowedOrigins = [
   'http://localhost:5500',
   'http://127.0.0.1:5500',
-  'https://ali-dzhan.github.io' // Your deployed frontend (ensure this is correct)
+  'https://ali-dzhan.github.io' // Your deployed frontend
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -37,9 +40,7 @@ app.use(express.json());
 // ==========================
 
 app.get("/", (req, res) => {
-
     res.send("FreshCut API is running.");
-
 });
 
 
@@ -721,7 +722,7 @@ app.get("/available-slots",(req,res)=>{
 app.listen(PORT,()=>{
 
     console.log(
-        `Server running on http://localhost:${PORT}`
+        `Server running on port ${PORT}`
     );
 
 });
