@@ -15,7 +15,7 @@ const JWT_SECRET = "freshcut-secret-key";
 const allowedOrigins = [
   'http://localhost:5500',
   'http://127.0.0.1:5500',
-  'https://ali-dzhan.github.io' // Your deployed frontend
+  'https://ali-dzhan.github.io' // Your deployed frontend (ensure this is correct)
 ];
 
 const corsOptions = {

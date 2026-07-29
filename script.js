@@ -213,6 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // These are now set globally within the DOMContentLoaded scope
   let selectedTime = null;
   let selectedDate = null;
+  let currentActiveDayElement = null; // To keep track of the active day element
 
 
   // ==========================================
@@ -299,11 +300,15 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!dayEl.classList.contains("disabled")) {
         dayEl.addEventListener("click", () => {
           const currentActiveDay = document.querySelector(".calendar-grid .day.active");
-          if (currentActiveDay) currentActiveDay.classList.remove("active");
+          if (currentActiveDay) {
+            currentActiveDay.classList.remove("active");
+          }
           dayEl.classList.add("active");
+          currentActiveDayElement = dayEl; // Store the active element
 
-          const currentActiveSlot = document.querySelector(".time-slot.active");
-          if (currentActiveSlot) currentActiveSlot.classList.remove("active");
+          selectedTime = null; // Reset selected time when a new day is picked
+          const activeSlot = document.querySelector(".time-slot.active");
+          if (activeSlot) activeSlot.classList.remove("active"); // Clear active time slot visually
 
           const formattedDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(i).padStart(2, "0")}`;
           selectedDate = formattedDate;
@@ -397,6 +402,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
                 button.classList.add("active");
                 updateSubmitButtonState();
+                selectedTime = time; // Update selectedTime when a slot is clicked
             });
             slotsContainer.appendChild(button);
         });
@@ -424,18 +430,15 @@ document.addEventListener("DOMContentLoaded", () => {
   if (calendarGrid) {
     generateCalendar(displayedDate);
 
-    const firstAvailableDay = document.querySelector(".calendar-grid .day:not(.disabled)");
-    if (firstAvailableDay) {
-      firstAvailableDay.click();
-    } else {
-      slotsContainer.innerHTML = `<p class="no-slots-message">Няма налични дни този месец.</p>`;
-      updateSubmitButtonState();
-    }
-
     nextMonthBtn.addEventListener("click", () => {
       displayedDate.setMonth(displayedDate.getMonth() + 1);
       generateCalendar(displayedDate);
       slotsContainer.innerHTML = '<p class="no-slots-message">Моля, изберете ден.</p>';
+      selectedDate = null; // Reset selected date when month changes
+      selectedTime = null; // Reset selected time when month changes
+      if (currentActiveDayElement) currentActiveDayElement.classList.remove("active"); // Clear active day visually
+      const activeSlot = document.querySelector(".time-slot.active");
+      if (activeSlot) activeSlot.classList.remove("active"); // Clear active time slot visually
       updateSubmitButtonState();
     });
 
@@ -443,8 +446,22 @@ document.addEventListener("DOMContentLoaded", () => {
       displayedDate.setMonth(displayedDate.getMonth() - 1);
       generateCalendar(displayedDate);
       slotsContainer.innerHTML = '<p class="no-slots-message">Моля, изберете ден.</p>';
+      selectedDate = null; // Reset selected date when month changes
+      selectedTime = null; // Reset selected time when month changes
+      if (currentActiveDayElement) currentActiveDayElement.classList.remove("active"); // Clear active day visually
+      const activeSlot = document.querySelector(".time-slot.active");
+      if (activeSlot) activeSlot.classList.remove("active"); // Clear active time slot visually
       updateSubmitButtonState();
     });
+
+    // Initial selection of the first available day
+    const firstAvailableDay = document.querySelector(".calendar-grid .day:not(.disabled)");
+    if (firstAvailableDay) {
+      firstAvailableDay.click();
+    } else {
+      slotsContainer.innerHTML = `<p class="no-slots-message">Няма налични дни този месец.</p>`;
+      updateSubmitButtonState();
+    }
   }
 
  // ==========================================
@@ -453,75 +470,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 const form = document.getElementById("bookingForm");
 const confirmBox = document.getElementById("confirmBox");
-
-if (form && confirmBox) {
-    form.addEventListener("submit", async function(e) {
-        e.preventDefault();
-        if(!selectedDate || !selectedTime) {
-            alert(
-                "Моля изберете дата и час."
-            );
-            return;
-        }
-
-        // Update selectedTime one last time before submitting
-        const activeSlot = document.querySelector(".time-slot.active");
-        if (activeSlot) {
-          selectedTime = activeSlot.textContent;
-        }
-        const formData = new FormData(form);
-        const booking = {
-            name:
-                formData.get("name"),
-            phone:
-                formData.get("phone"),
-            email:
-                formData.get("email"),
-            service:
-                formData.get("service"),
-            date:
-                selectedDate,
-            time:
-                selectedTime
-
-        };
-
-
-
-
-        try {
-
-
-            const response = await fetch(`${apiHost}/book`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(booking),
-            });
-            const result =
-                await response.json();
-
-            if(!response.ok){
-                alert(
-                    result.message ||
-                    "Грешка при запазване."
-                );
-                return;
-            }
-            // Success
-            form.classList.add("hide");
-            confirmBox.classList.add("show");
-        } catch(error){
-            console.error(error);
-            alert(
-                "Сървърът не отговаря."
-            );
-        }
-    });
-
-
-}
 
   // ==========================================
   // 5. MODAL POP-UP LOGIC (Multi-Trigger)
