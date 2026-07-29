@@ -226,7 +226,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
   // IMPORTANT: You must deploy your backend to a service like Render or Vercel
   // and replace this placeholder URL with your actual public backend URL.
-  const PRODUCTION_URL = 'https://freshcut-m19.onrender.com'; // <-- REPLACE THIS
+  const PRODUCTION_URL = 'https://freshcut-m19.onrender.com'; 
   const LOCAL_URL = `http://${window.location.hostname}:3000`;
 
   const apiHost = isProduction ? PRODUCTION_URL : LOCAL_URL;
@@ -470,6 +470,60 @@ document.addEventListener("DOMContentLoaded", () => {
 
 const form = document.getElementById("bookingForm");
 const confirmBox = document.getElementById("confirmBox");
+
+if (form && confirmBox) {
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    // Final check for selected date and time
+    if (!selectedDate || !selectedTime) {
+      alert("Моля, изберете дата и час.");
+      return;
+    }
+
+    const formData = new FormData(form);
+
+    const booking = {
+      name: formData.get("name"),
+      phone: formData.get("phone"),
+      email: formData.get("email"),
+      service: formData.get("service"),
+      date: selectedDate,
+      time: selectedTime,
+      note: formData.get("note"),
+    };
+
+    // Disable button to prevent multiple submissions
+    if (submitBtn) submitBtn.disabled = true;
+
+    try {
+      const response = await fetch(`${apiHost}/book`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(booking),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        alert(result.message || "Грешка при запазване на часа.");
+        if (submitBtn) submitBtn.disabled = false; // Re-enable on error
+        return;
+      }
+
+      // On Success
+      form.classList.add("hide");
+      confirmBox.classList.add("show");
+
+    } catch (error) {
+      console.error("Booking submission error:", error);
+      alert("Грешка при свързване със сървъра. Моля, опитайте отново.");
+      if (submitBtn) submitBtn.disabled = false; // Re-enable on error
+    }
+  });
+}
 
   // ==========================================
   // 5. MODAL POP-UP LOGIC (Multi-Trigger)
