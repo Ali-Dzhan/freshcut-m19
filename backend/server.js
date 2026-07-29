@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const path = require("path");
 
 const db = require("./database");
 
@@ -15,17 +16,24 @@ const JWT_SECRET = "freshcut-secret-key";
 // CORS CONFIGURATION
 // ==========================
 const allowedOrigins = [
-  'http://localhost:5500',
-  'http://127.0.0.1:5500',
-  'http://localhost:3000',
-  'http://127.0.0.1:3000',
   'https://ali-dzhan.github.io'
 ];
+
+function isLocalOrigin(origin) {
+    try {
+        const { hostname } = new URL(origin);
+        return hostname === "localhost" ||
+               hostname === "127.0.0.1" ||
+               hostname === "::1";
+    } catch (error) {
+        return false;
+    }
+}
 
 const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+    if (!origin || allowedOrigins.includes(origin) || isLocalOrigin(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -35,6 +43,10 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
+const publicDir = path.join(__dirname, "..");
+
+app.use("/photos", express.static(path.join(publicDir, "photos")));
+app.use(express.static(publicDir));
 
 
 // ==========================
@@ -42,6 +54,18 @@ app.use(express.json());
 // ==========================
 
 app.get("/", (req, res) => {
+    res.sendFile(path.join(publicDir, "index.html"));
+});
+
+app.get("/admin", (req, res) => {
+    res.sendFile(path.join(publicDir, "admin.html"));
+});
+
+app.get("/account", (req, res) => {
+    res.sendFile(path.join(publicDir, "account.html"));
+});
+
+app.get("/api/health", (req, res) => {
     res.send("FreshCut API is running.");
 });
 
@@ -136,28 +160,28 @@ app.post("/admin/login", (req,res)=>{
 // AUTH MIDDLEWARE
 // ==========================
 
+function readToken(req) {
+    const authHeader = req.headers.authorization;
+
+    if(!authHeader){
+        return null;
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    return token || null;
+}
+
 function authenticateAdmin(req,res,next){
 
 
-    const authHeader = req.headers.authorization;
-
-
-    if(!authHeader){
-
-        return res.status(401).json({
-            message:"No token provided."
-        });
-
-    }
-
-
-    const token = authHeader.split(" ")[1];
+    const token = readToken(req);
 
 
     if(!token){
 
         return res.status(401).json({
-            message:"Invalid token."
+            message:"No token provided."
         });
 
     }
@@ -172,6 +196,55 @@ function authenticateAdmin(req,res,next){
 
 
         req.admin = decoded;
+
+        next();
+
+
+    }catch(error){
+
+
+        return res.status(401).json({
+            message:"Invalid or expired token."
+        });
+
+
+    }
+
+}
+
+function authenticateCustomer(req,res,next){
+
+
+    const token = readToken(req);
+
+
+    if(!token){
+
+        return res.status(401).json({
+            message:"No token provided."
+        });
+
+    }
+
+
+    try{
+
+        const decoded = jwt.verify(
+            token,
+            JWT_SECRET
+        );
+
+
+        if(decoded.role !== "customer"){
+
+            return res.status(403).json({
+                message:"Customer access required."
+            });
+
+        }
+
+
+        req.customer = decoded;
 
         next();
 
@@ -248,7 +321,405 @@ function isValidBookingTime(date,time){
 
 }
 
+function normalizePhone(phone) {
+    return String(phone || "").replace(/[^\d+]/g, "");
+}
 
+function isValidPhone(phone) {
+    const normalized = normalizePhone(phone);
+
+    return /^08\d{8}$/.test(normalized) ||
+           /^\+3598\d{8}$/.test(normalized) ||
+           /^3598\d{8}$/.test(normalized);
+}
+
+function isValidEmail(email) {
+    const trimmed = String(email || "").trim();
+
+    if (!trimmed) {
+        return true;
+    }
+
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmed);
+}
+
+function isValidDateString(date) {
+    return /^\d{4}-\d{2}-\d{2}$/.test(String(date || ""));
+}
+
+function checkClosedDate(date, callback) {
+    db.get(
+        `
+        SELECT *
+        FROM closed_dates
+        WHERE date = ?
+        `,
+        [date],
+        (err,row)=>{
+            callback(err, row || null);
+        }
+    );
+}
+
+
+
+
+function getOptionalCustomerId(req) {
+    const token = readToken(req);
+
+    if (!token) {
+        return null;
+    }
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        return decoded.role === "customer" ? decoded.id : null;
+    } catch (error) {
+        return null;
+    }
+}
+
+function signCustomerToken(customer) {
+    return jwt.sign(
+        {
+            id: customer.id,
+            name: customer.name,
+            email: customer.email,
+            role: "customer"
+        },
+        JWT_SECRET,
+        {
+            expiresIn:"30d"
+        }
+    );
+}
+
+
+// ==========================
+// CUSTOMER AUTH
+// ==========================
+
+app.post("/customer/register", async (req,res)=>{
+
+
+    const {
+        name,
+        email,
+        phone,
+        password
+    } = req.body;
+
+
+    const cleanEmail = String(email || "").trim().toLowerCase();
+
+
+    if(!name || !cleanEmail || !password){
+
+        return res.status(400).json({
+            message:"Name, email and password are required."
+        });
+
+    }
+
+
+    if(!isValidEmail(cleanEmail)){
+
+        return res.status(400).json({
+            message:"Invalid email address."
+        });
+
+    }
+
+
+    if(phone && !isValidPhone(phone)){
+
+        return res.status(400).json({
+            message:"Invalid phone number."
+        });
+
+    }
+
+
+    if(String(password).length < 6){
+
+        return res.status(400).json({
+            message:"Password must be at least 6 characters."
+        });
+
+    }
+
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+
+    db.run(
+        `
+        INSERT INTO customers
+        (
+            name,
+            email,
+            phone,
+            password
+        )
+        VALUES (?,?,?,?)
+        `,
+        [
+            name,
+            cleanEmail,
+            phone || null,
+            hashedPassword
+        ],
+        function(err){
+
+
+            if(err){
+
+                if(err.message.includes("UNIQUE")){
+
+                    return res.status(409).json({
+                        message:"A customer with this email already exists."
+                    });
+
+                }
+
+
+                return res.status(500).json({
+                    error:err.message
+                });
+
+            }
+
+
+            const customer = {
+                id:this.lastID,
+                name,
+                email:cleanEmail,
+                phone:phone || null
+            };
+
+
+            res.json({
+                success:true,
+                token:signCustomerToken(customer),
+                customer
+            });
+
+
+        }
+    );
+
+
+});
+
+app.post("/customer/login",(req,res)=>{
+
+
+    const {
+        email,
+        password
+    } = req.body;
+
+
+    const cleanEmail = String(email || "").trim().toLowerCase();
+
+
+    if(!cleanEmail || !password){
+
+        return res.status(400).json({
+            message:"Email and password are required."
+        });
+
+    }
+
+
+    db.get(
+        `
+        SELECT *
+        FROM customers
+        WHERE email = ?
+        `,
+        [cleanEmail],
+        async(err, customer)=>{
+
+
+            if(err){
+
+                return res.status(500).json({
+                    error:err.message
+                });
+
+            }
+
+
+            if(!customer){
+
+                return res.status(401).json({
+                    message:"Invalid login."
+                });
+
+            }
+
+
+            const valid = await bcrypt.compare(
+                password,
+                customer.password
+            );
+
+
+            if(!valid){
+
+                return res.status(401).json({
+                    message:"Invalid login."
+                });
+
+            }
+
+
+            res.json({
+                success:true,
+                token:signCustomerToken(customer),
+                customer:{
+                    id:customer.id,
+                    name:customer.name,
+                    email:customer.email,
+                    phone:customer.phone
+                }
+            });
+
+
+        }
+    );
+
+
+});
+
+app.get(
+"/customer/me",
+authenticateCustomer,
+(req,res)=>{
+
+
+    db.get(
+        `
+        SELECT id,name,email,phone,created_at
+        FROM customers
+        WHERE id = ?
+        `,
+        [req.customer.id],
+        (err,customer)=>{
+
+
+            if(err){
+
+                return res.status(500).json({
+                    error:err.message
+                });
+
+            }
+
+
+            if(!customer){
+
+                return res.status(404).json({
+                    message:"Customer not found."
+                });
+
+            }
+
+
+            res.json(customer);
+
+
+        }
+    );
+
+
+});
+
+app.get(
+"/customer/appointments",
+authenticateCustomer,
+(req,res)=>{
+
+
+    db.all(
+        `
+        SELECT *
+        FROM appointments
+        WHERE customer_id = ?
+        ORDER BY date,time
+        `,
+        [req.customer.id],
+        (err,rows)=>{
+
+
+            if(err){
+
+                return res.status(500).json({
+                    error:err.message
+                });
+
+            }
+
+
+            res.json(rows);
+
+
+        }
+    );
+
+
+});
+
+app.put(
+"/customer/appointments/:id/cancel",
+authenticateCustomer,
+(req,res)=>{
+
+
+    db.run(
+        `
+        UPDATE appointments
+        SET status = 'Cancelled'
+        WHERE id = ?
+        AND customer_id = ?
+        AND status != 'Cancelled'
+        `,
+        [
+            req.params.id,
+            req.customer.id
+        ],
+        function(err){
+
+
+            if(err){
+
+                return res.status(500).json({
+                    error:err.message
+                });
+
+            }
+
+
+            if(this.changes === 0){
+
+                return res.status(404).json({
+                    message:"Appointment not found or already cancelled."
+                });
+
+            }
+
+
+            res.json({
+                success:true
+            });
+
+
+        }
+    );
+
+
+});
 
 
 // ==========================
@@ -268,6 +739,8 @@ app.post("/book",(req,res)=>{
         note
     } = req.body;
 
+    const customerId = getOptionalCustomerId(req);
+
 
 
     if(!name || !phone || !service || !date || !time){
@@ -275,6 +748,26 @@ app.post("/book",(req,res)=>{
         return res.status(400).json({
 
             message:"Missing required fields."
+
+        });
+
+    }
+
+    if(!isValidPhone(phone)){
+
+        return res.status(400).json({
+
+            message:"Invalid phone number."
+
+        });
+
+    }
+
+    if(!isValidEmail(email)){
+
+        return res.status(400).json({
+
+            message:"Invalid email address."
 
         });
 
@@ -318,9 +811,28 @@ app.post("/book",(req,res)=>{
     }
 
 
+    checkClosedDate(date, (closedErr, closedDate)=>{
 
 
-    db.get(
+        if(closedErr){
+
+            return res.status(500).json({
+                error:closedErr.message
+            });
+
+        }
+
+
+        if(closedDate){
+
+            return res.status(400).json({
+                message:"The salon is closed on this date."
+            });
+
+        }
+
+
+        db.get(
 
         `
         SELECT id
@@ -369,6 +881,7 @@ app.post("/book",(req,res)=>{
                 `
                 INSERT INTO appointments
                 (
+                    customer_id,
                     name,
                     phone,
                     email,
@@ -378,11 +891,12 @@ app.post("/book",(req,res)=>{
                     note
                 )
 
-                VALUES (?,?,?,?,?,?,?)
+                VALUES (?,?,?,?,?,?,?,?)
 
                 `,
 
                 [
+                    customerId,
                     name,
                     phone,
                     email,
@@ -425,7 +939,9 @@ app.post("/book",(req,res)=>{
 
         }
 
-    );
+        );
+
+    });
 
 
 });
@@ -572,6 +1088,151 @@ authenticateAdmin,
 
 });
 
+// ==========================
+// ADMIN CLOSED DATES
+// ==========================
+
+app.get(
+"/admin/closed-dates",
+authenticateAdmin,
+(req,res)=>{
+
+
+    db.all(
+        `
+        SELECT *
+        FROM closed_dates
+        ORDER BY date
+        `,
+        [],
+        (err,rows)=>{
+
+
+            if(err){
+
+                return res.status(500).json({
+                    error:err.message
+                });
+
+            }
+
+
+            res.json(rows);
+
+
+        }
+    );
+
+
+});
+
+app.post(
+"/admin/closed-dates",
+authenticateAdmin,
+(req,res)=>{
+
+
+    const {
+        date,
+        reason
+    } = req.body;
+
+
+    if(!isValidDateString(date)){
+
+        return res.status(400).json({
+            message:"Invalid date."
+        });
+
+    }
+
+
+    db.run(
+        `
+        INSERT INTO closed_dates
+        (
+            date,
+            reason
+        )
+        VALUES (?,?)
+        ON CONFLICT(date) DO UPDATE SET reason = excluded.reason
+        `,
+        [
+            date,
+            reason || null
+        ],
+        function(err){
+
+
+            if(err){
+
+                return res.status(500).json({
+                    error:err.message
+                });
+
+            }
+
+
+            res.json({
+                success:true
+            });
+
+
+        }
+    );
+
+
+});
+
+app.delete(
+"/admin/closed-dates/:date",
+authenticateAdmin,
+(req,res)=>{
+
+
+    const {
+        date
+    } = req.params;
+
+
+    if(!isValidDateString(date)){
+
+        return res.status(400).json({
+            message:"Invalid date."
+        });
+
+    }
+
+
+    db.run(
+        `
+        DELETE FROM closed_dates
+        WHERE date = ?
+        `,
+        [date],
+        function(err){
+
+
+            if(err){
+
+                return res.status(500).json({
+                    error:err.message
+                });
+
+            }
+
+
+            res.json({
+                success:true
+            });
+
+
+        }
+    );
+
+
+});
+
 
 
 
@@ -658,13 +1319,42 @@ app.get("/available-slots",(req,res)=>{
 
     }
 
+    if(!isValidDateString(date)){
+
+        return res.status(400).json({
+
+            message:"Invalid date."
+
+        });
+
+    }
 
 
-    const workingHours = generateWorkingHours(date);
+    checkClosedDate(date, (closedErr, closedDate)=>{
+
+        if(closedErr){
+
+            return res.status(500).json({
+
+                error:closedErr.message
+
+            });
+
+        }
+
+
+        if(closedDate){
+
+            return res.json([]);
+
+        }
+
+
+        const workingHours = generateWorkingHours(date);
 
 
 
-    db.all(
+        db.all(
 
         `
         SELECT time
@@ -712,7 +1402,9 @@ app.get("/available-slots",(req,res)=>{
 
         }
 
-    );
+        );
+
+    });
 
 
 });

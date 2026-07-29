@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Моят профил | FreshCut M19</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="layout.css">
+<link rel="stylesheet" href="responsive.css">
+<link rel="stylesheet" href="account.css">
+</head>
+<body class="account-page">
+  <div class="glow-field"></div>
+
+  <main class="account-shell">
+    <section class="auth-view" id="authView">
+      <div class="auth-card">
+        <a class="account-brand" href="index.html">
+          <span class="brand-ring">
+            <img src="photos/logo.jpg" alt="FreshCut M19">
+          </span>
+          <span>FreshCut <b>M19</b></span>
+        </a>
+
+        <div class="auth-copy">
+          <p class="mono-label">CLIENT AREA</p>
+          <h1>Моят профил</h1>
+        </div>
+
+        <div class="auth-tabs" role="tablist">
+          <button class="auth-tab active" id="loginTab" type="button">Вход</button>
+          <button class="auth-tab" id="registerTab" type="button">Регистрация</button>
+        </div>
+
+        <form class="account-form" id="loginForm">
+          <div>
+            <label for="loginEmail">Имейл</label>
+            <input id="loginEmail" name="email" type="email" autocomplete="email" required>
+          </div>
+          <div>
+            <label for="loginPassword">Парола</label>
+            <input id="loginPassword" name="password" type="password" autocomplete="current-password" required>
+          </div>
+          <button class="account-primary" type="submit">Вход</button>
+        </form>
+
+        <form class="account-form hidden" id="registerForm">
+          <div>
+            <label for="registerName">Име</label>
+            <input id="registerName" name="name" type="text" autocomplete="name" required>
+          </div>
+          <div>
+            <label for="registerEmail">Имейл</label>
+            <input id="registerEmail" name="email" type="email" autocomplete="email" required>
+          </div>
+          <div>
+            <label for="registerPhone">Телефон</label>
+            <input id="registerPhone" name="phone" type="tel" inputmode="tel" pattern="[+0-9\s() -]{10,18}" title="Пример: 0888123456 или +359888123456" autocomplete="tel">
+          </div>
+          <div>
+            <label for="registerPassword">Парола</label>
+            <input id="registerPassword" name="password" type="password" autocomplete="new-password" minlength="6" required>
+          </div>
+          <button class="account-primary" type="submit">Създай профил</button>
+        </form>
+
+        <p class="form-message" id="authMessage" role="alert"></p>
+
+        <div class="provider-list" aria-label="Допълнителни входове">
+          <button class="provider-btn" type="button" disabled>Google вход</button>
+          <button class="provider-btn" type="button" disabled>Facebook вход</button>
+          <button class="provider-btn" type="button" disabled>Вход с телефон</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="profile-view hidden" id="profileView">
+      <header class="profile-header">
+        <div>
+          <p class="mono-label">FRESHCUT M19</p>
+          <h1>Моите резервации</h1>
+          <p class="profile-meta" id="profileMeta"></p>
+        </div>
+        <div class="profile-actions">
+          <a class="account-secondary" href="index.html">Към сайта</a>
+          <button class="account-secondary trigger-booking" type="button">Запази час</button>
+          <button class="account-secondary" id="refreshBtn" type="button">Обнови</button>
+          <button class="account-secondary" id="logoutBtn" type="button">Изход</button>
+        </div>
+      </header>
+
+      <p class="form-message profile-message" id="profileMessage" role="status"></p>
+
+      <div class="appointments-list" id="appointmentsList"></div>
+      <div class="empty-state hidden" id="emptyState">Все още няма резервации към този профил.</div>
+    </section>
+  </main>
+
+  <div id="bookingModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-drag-handle"></div>
+
+      <div class="modal-header">
+        <h3 style="margin: 0; font-family: 'Syne', sans-serif; font-size: 22px;">Резервация</h3>
+        <button class="close-modal" id="closeModalBtn" type="button">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <form class="form-body" id="bookingForm">
+          <div class="form-row">
+            <div>
+              <label for="name">Име</label>
+              <input type="text" id="name" name="name" required placeholder="Твоето име">
+            </div>
+            <div>
+              <label for="phone">Телефон</label>
+              <input type="tel" id="phone" name="phone" required inputmode="tel" pattern="[+0-9\s() -]{10,18}" title="Пример: 0888123456 или +359888123456" placeholder="08xx xxx xxx">
+            </div>
+          </div>
+
+          <div class="form-row full">
+            <div>
+              <label for="email">Имейл</label>
+              <input type="email" id="email" name="email" inputmode="email" placeholder="example@email.com">
+            </div>
+          </div>
+
+          <div class="form-row full">
+            <div>
+              <label for="service">Услуга</label>
+              <select id="service" name="service" required>
+                <option value="">Избери услуга</option>
+                <option value="Fade / Skin Fade — 9 €">Fade / Skin Fade — 9 €</option>
+                <option value="Класическо подстригване — 8 €">Класическо подстригване — 8 €</option>
+                <option value="Детско — 7 €">Детско — 7 €</option>
+                <option value="Оформяне на брада — 5 €">Оформяне на брада — 5 €</option>
+                <option value="Брада с машинка — 3 €">Брада с машинка — 3 €</option>
+                <option value="Коса + брада — 15 €">Коса + брада — 15 €</option>
+                <option value="Кола маска — 4 €">Кола маска — 4 €</option>
+                <option value="Кална / глинена маска — 2 €">Кална / глинена маска — 2 €</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="picker-section">
+            <div class="picker-header">
+              <span class="picker-month" id="currentMonth"></span>
+
+              <div class="picker-nav">
+                <button class="btn-picker-arrow" type="button">&lt;</button>
+                <button class="btn-picker-arrow" type="button">&gt;</button>
+              </div>
+            </div>
+
+            <div class="calendar-days-header">
+              <span>ПОН</span>
+              <span>ВТО</span>
+              <span>СРЯ</span>
+              <span>ЧЕТ</span>
+              <span>ПЕТ</span>
+              <span>СЪБ</span>
+              <span>НЕД</span>
+            </div>
+
+            <div class="calendar-grid"></div>
+          </div>
+
+          <div class="picker-section">
+            <label>Избери час</label>
+            <div class="time-slots-container"></div>
+          </div>
+
+          <div class="form-row full">
+            <div>
+              <label for="note">Бележка</label>
+              <textarea id="note" name="note" placeholder="Допълнителна информация"></textarea>
+            </div>
+          </div>
+
+          <button class="btn-primary" type="submit">Запази час</button>
+        </form>
+
+        <div class="confirm-box" id="confirmBox">
+          <div class="confirm-ring">✓</div>
+          <h3>Заявката е изпратена!</h3>
+          <p>Ще се свържем с теб на посочения телефон, за да потвърдим часа.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="account.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FreshCut M19 Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body class="admin-page">
+  <div class="glow-field"></div>
+
+  <main class="admin-shell">
+    <section class="login-view" id="loginView">
+      <div class="login-card">
+        <a class="admin-brand" href="index.html">
+          <span class="brand-ring">
+            <img src="photos/logo.jpg" alt="FreshCut M19">
+          </span>
+          <span>FreshCut <b>M19</b></span>
+        </a>
+
+        <div class="login-copy">
+          <p class="mono-label">ADMIN PANEL</p>
+          <h1>Вход за управление</h1>
+        </div>
+
+        <form id="loginForm" class="admin-form">
+          <div>
+            <label for="username">Потребител</label>
+            <input id="username" name="username" type="text" autocomplete="username" required>
+          </div>
+
+          <div>
+            <label for="password">Парола</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required>
+          </div>
+
+          <p class="form-message" id="loginMessage" role="alert"></p>
+
+          <button class="admin-primary" type="submit">Вход</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="dashboard-view hidden" id="dashboardView">
+      <header class="dashboard-header">
+        <div>
+          <p class="mono-label">FRESHCUT M19</p>
+          <h1>Резервации</h1>
+        </div>
+        <div class="header-actions">
+          <button class="admin-secondary" id="refreshBtn" type="button">Обнови</button>
+          <button class="admin-secondary" id="logoutBtn" type="button">Изход</button>
+        </div>
+      </header>
+
+      <div class="stats-grid" aria-label="Обобщение на резервациите">
+        <div class="stat-card">
+          <span>Всички</span>
+          <strong id="totalCount">0</strong>
+        </div>
+        <div class="stat-card">
+          <span>Чакащи</span>
+          <strong id="pendingCount">0</strong>
+        </div>
+        <div class="stat-card">
+          <span>Потвърдени</span>
+          <strong id="confirmedCount">0</strong>
+        </div>
+        <div class="stat-card">
+          <span>Отказани</span>
+          <strong id="cancelledCount">0</strong>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-wrap">
+          <label for="searchInput">Търсене</label>
+          <input id="searchInput" type="search" placeholder="Име, телефон, услуга...">
+        </div>
+        <div class="filter-wrap">
+          <label for="statusFilter">Статус</label>
+          <select id="statusFilter">
+            <option value="all">Всички</option>
+            <option value="Pending">Pending</option>
+            <option value="Confirmed">Confirmed</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
+      </div>
+
+      <p class="form-message dashboard-message" id="dashboardMessage" role="status"></p>
+
+      <section class="schedule-panel" aria-label="Работен календар">
+        <div class="schedule-panel-head">
+          <div>
+            <p class="mono-label">SCHEDULE</p>
+            <h2>Затворени дати</h2>
+          </div>
+          <form class="closed-date-form" id="closedDateForm">
+            <input id="closedDateInput" name="date" type="date" required>
+            <input id="closedReasonInput" name="reason" type="text" placeholder="Причина, по желание">
+            <button class="admin-primary" type="submit">Затвори ден</button>
+          </form>
+        </div>
+        <div class="closed-dates-list" id="closedDatesList"></div>
+        <div class="empty-state compact hidden" id="closedDatesEmpty">
+          Няма добавени затворени дати.
+        </div>
+      </section>
+
+      <div class="appointments-table-wrap">
+        <table class="appointments-table">
+          <thead>
+            <tr>
+              <th>Дата</th>
+              <th>Час</th>
+              <th>Клиент</th>
+              <th>Услуга</th>
+              <th>Бележка</th>
+              <th>Статус</th>
+            </tr>
+          </thead>
+          <tbody id="appointmentsBody"></tbody>
+        </table>
+        <div class="empty-state hidden" id="emptyState">
+          Няма резервации за показване.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="admin.js"></script>
+</body>
+</html>
