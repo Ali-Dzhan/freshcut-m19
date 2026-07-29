@@ -1,5 +1,3 @@
-/* === STEP 3: JavaScript Fluid Ring Animation === */
-
 window.addEventListener("load", () => {
   const canvas = document.getElementById("fluidRingCanvas");
   if (!canvas) return;
@@ -177,6 +175,20 @@ window.addEventListener("load", () => {
 document.addEventListener("DOMContentLoaded", () => {
 
   // ==========================================
+  // NAVBAR SCROLL EFFECT
+  // ==========================================
+  const nav = document.querySelector("nav");
+  if (nav) {
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 10) {
+        nav.classList.add("scrolled");
+      } else {
+        nav.classList.remove("scrolled");
+      }
+    });
+  }
+
+  // ==========================================
   // 1. MOBILE BURGER MENU TOGGLE
   // ==========================================
 
@@ -201,35 +213,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==========================================
   // 3. APPOINTMENT SCHEDULING LOGIC
   // ==========================================
-  const schedule = {
-    tuesday: [
-      "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30",
-      "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30",
-      "18:00", "18:30",
-    ],
-    wednesday: [
-      "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30",
-      "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30",
-      "18:00", "18:30",
-    ],
-    thursday: [
-      "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30",
-      "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30",
-      "18:00", "18:30",
-    ],
-    friday: [
-      "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30",
-      "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30",
-      "18:00", "18:30",
-    ],
-    saturday: [
-      "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30",
-      "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30",
-    ],
-  };
+  
 
   const slotsContainer = document.querySelector(".time-slots-container");
-  const dayMap = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
   const submitBtn = document.querySelector('#bookingForm button[type="submit"]');
 
   // Helper function to check booking state and toggle submit button
@@ -255,37 +241,71 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const calendarDays = document.querySelectorAll(".calendar-grid .day:not(.disabled)");
 
-  function renderSlots(day) {
+  async function renderSlots(date) {
+
     if (!slotsContainer) return;
-    slotsContainer.innerHTML = "";
 
-    const daySchedule = schedule[day];
+    slotsContainer.innerHTML = 
+        `<p class="loading-message">Зареждане...</p>`;
 
-    if (!daySchedule || daySchedule.length === 0) {
-      slotsContainer.innerHTML = `<p class="no-slots-message">Затворено. Моля, изберете друг ден.</p>`;
-      updateSubmitButtonState();
-      return;
+    try {
+
+        const response = await fetch(
+            `http://localhost:3000/available-slots?date=${date}`
+        );
+
+        const slots = await response.json();
+
+        slotsContainer.innerHTML = "";
+
+        if (slots.length === 0) {
+
+            slotsContainer.innerHTML =
+                `<p class="no-slots-message">
+                    Затворено или няма свободни часове.
+                </p>`;
+
+            updateSubmitButtonState();
+            return;
+        }
+
+        slots.forEach((time) => {
+            const button = document.createElement("button");
+
+            button.type = "button";
+            button.className = "time-slot";
+            button.textContent = time;
+
+            button.addEventListener("click", () => {
+                document
+                .querySelectorAll(".time-slot")
+                .forEach(slot =>
+                    slot.classList.remove("active")
+                );
+                button.classList.add("active");
+                updateSubmitButtonState();
+            });
+            slotsContainer.appendChild(button);
+        });
+        updateSubmitButtonState();
+
+    } catch(error) {
+
+
+        console.error(
+            "Slots loading error:",
+            error
+        );
+
+
+        slotsContainer.innerHTML =
+        `<p class="no-slots-message">
+            Грешка при зареждане.
+        </p>`;
+
     }
 
-    daySchedule.forEach((time) => {
-      const button = document.createElement("button");
-
-      button.type = "button";
-      button.className = "time-slot";
-      button.textContent = time;
-
-      button.addEventListener("click", () => {
-        document.querySelectorAll(".time-slot").forEach((slot) => {
-          slot.classList.remove("active");
-        });
-        button.classList.add("active");
-        updateSubmitButtonState();
-      });
-
-      slotsContainer.appendChild(button);
-    });
-    updateSubmitButtonState();
-  }
+}
 
   calendarDays.forEach((day) => {
     day.addEventListener("click", () => {
@@ -298,8 +318,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const dayNumber = parseInt(day.textContent, 10);
       const date = new Date(2026, 6, dayNumber); // Month is 0-indexed (6 = July)
-      const dayName = dayMap[date.getDay()];
-      renderSlots(dayName);
+
+      const formattedDate =
+      date.toISOString().split("T")[0];
+
+
+      renderSlots(formattedDate);
     });
   });
 
@@ -322,20 +346,111 @@ document.addEventListener("DOMContentLoaded", () => {
   updateSubmitButtonState();
 
  // ==========================================
-  // 4. BOOKING FORM
-  // ==========================================
+// 4. BOOKING FORM + BACKEND CONNECTION
+// ==========================================
 
-  const form = document.getElementById("bookingForm");
-  const confirmBox = document.getElementById("confirmBox");
+const form = document.getElementById("bookingForm");
+const confirmBox = document.getElementById("confirmBox");
 
-  if (form && confirmBox) {
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
+let selectedTime = null;
+let selectedDate = null;
 
-      form.classList.add("hide");
-      confirmBox.classList.add("show");
+// Track selected time
+document.addEventListener("click", (e) => {
+
+    if (e.target.classList.contains("time-slot")) {
+        selectedTime = e.target.textContent;
+    }
+
+});
+
+// Track selected date
+document.querySelectorAll(".calendar-grid .day")
+.forEach(day => {
+    day.addEventListener("click", () => {
+        if(day.classList.contains("disabled"))
+            return;
+        const dayNumber =
+            parseInt(day.textContent, 10);
+        const date =
+            new Date(2026, 6, dayNumber);
+        selectedDate =
+            date.toISOString().split("T")[0];
     });
-  }
+});
+if (form && confirmBox) {
+    form.addEventListener("submit", async function(e) {
+        e.preventDefault();
+        if(!selectedDate || !selectedTime) {
+            alert(
+                "Моля изберете дата и час."
+            );
+            return;
+        }
+        const formData = new FormData(form);
+        const booking = {
+            name:
+                formData.get("name"),
+            phone:
+                formData.get("phone"),
+            email:
+                formData.get("email"),
+            service:
+                formData.get("service"),
+            date:
+                selectedDate,
+            time:
+                selectedTime
+
+        };
+
+
+
+
+        try {
+
+
+            const response =
+                await fetch(
+                    "http://localhost:3000/book",
+                    {
+
+                        method:"POST",
+
+                        headers:{
+                            "Content-Type":
+                            "application/json"
+                        },
+
+
+                        body:
+                        JSON.stringify(booking)
+
+                    }
+                );
+            const result =
+                await response.json();
+
+            if(!response.ok){
+                alert(
+                    result.message ||
+                    "Грешка при запазване."
+                );
+                return;
+            }
+            // Success
+            form.classList.add("hide");
+            confirmBox.classList.add("show");
+        } catch(error){
+            console.error(error);
+            alert(
+                "Сървърът не отговаря."
+            );
+        }
+    });
+
+
+}
 
   // ==========================================
   // 5. MODAL POP-UP LOGIC (Multi-Trigger)

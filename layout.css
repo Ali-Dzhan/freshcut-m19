@@ -1,9 +1,23 @@
 /* NAV */
-nav{
-  position:sticky; top:0; z-index:50;
-  background:rgba(8,8,8,0.92); backdrop-filter:blur(10px);
-  border-bottom:1px solid var(--line);
+nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    background: rgba(8, 8, 8, 0.75);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    border-bottom: 1px solid rgba(255,255,255,.06);
+
+    transition: all .35s ease;
 }
+
+nav.scrolled{
+    background: rgba(8,8,8,.88);
+    box-shadow: 0 10px 35px rgba(0,0,0,.35);
+}
+
 .nav-inner{
   max-width:1080px; margin:0 auto; padding:16px 24px;
   display:flex; align-items:center; justify-content:space-between;

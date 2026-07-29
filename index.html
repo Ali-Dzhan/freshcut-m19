@@ -433,95 +433,285 @@
       <button class="close-modal" id="closeModalBtn">&times;</button>
     </div>
 
-    <div class="modal-body">
-      <form class="form-body" id="bookingForm">
-        
-        <!-- User Info Row -->
-        <div class="form-row">
-          <div>
-            <label for="name">Име</label>
-            <input type="text" id="name" required placeholder="Твоето име">
-          </div>
-          <div>
-            <label for="phone">Телефон</label>
-            <input type="tel" id="phone" required placeholder="08xx xxx xxx">
-          </div>
-        </div>
+<div class="modal-body">
 
-        <!-- Service Selector Row -->
-        <div class="form-row full">
-          <div>
-            <label for="service">Услуга</label>
-            <select id="service" required>
-              <option value="">Избери услуга</option>
-              <option>Fade / Skin Fade — 9 €</option>
-              <option>Класическо подстригване — 8 €</option>
-              <option>Детско — 7 €</option>
-              <option>Оформяне на брада — 5 €</option>
-              <option>Брада с машинка — 3 €</option>
-              <option>Коса + брада — 15 €</option>
-              <option>Кола маска — 4 €</option>
-              <option>Кална / глинена маска — 2 €</option>
-            </select>
-          </div>
-        </div>
+  <form class="form-body" id="bookingForm">
 
-        <!-- CALENDAR UI (App-style) -->
-        <div class="picker-section">
-          <div class="picker-header">
-            <span class="picker-month" id="currentMonth">Юли 2026</span>
-            <div class="picker-nav">
-              <button type="button" class="btn-picker-arrow">&lt;</button>
-              <button type="button" class="btn-picker-arrow">&gt;</button>
-            </div>
-          </div>
+    <!-- User Info Row -->
+    <div class="form-row">
+      <div>
+        <label for="name">Име</label>
+        <input 
+          type="text"
+          id="name"
+          name="name"
+          required
+          placeholder="Твоето име"
+        >
+      </div>
+      <div>
+        <label for="phone">Телефон</label>
+        <input 
+          type="tel"
+          id="phone"
+          name="phone"
+          required
+          placeholder="08xx xxx xxx"
+        >
+      </div>
 
-          <div class="calendar-days-header">
-            <span>ПОН</span><span>ВТО</span><span>СРЯ</span><span>ЧЕТ</span><span>ПЕТ</span><span>СЪБ</span><span>НЕД</span>
-          </div>
-
-          <div class="calendar-grid">
-            <span class="day disabled">29</span><span class="day disabled">30</span>
-            <span class="day">1</span><span class="day">2</span><span class="day">3</span><span class="day">4</span><span class="day">5</span>
-            <span class="day">6</span><span class="day">7</span><span class="day">8</span><span class="day">9</span><span class="day">10</span><span class="day">11</span><span class="day">12</span>
-            <span class="day">13</span><span class="day">14</span><span class="day">15</span><span class="day active">16</span><span class="day">17</span><span class="day">18</span><span class="day">19</span>
-            <span class="day">20</span><span class="day">21</span><span class="day">22</span><span class="day">23</span><span class="day">24</span><span class="day">25</span><span class="day">26</span>
-            <span class="day">27</span><span class="day">28</span><span class="day">29</span><span class="day">30</span><span class="day">31</span>
-          </div>
-        </div>
-
-        <!-- TIME SLOTS ROW -->
-        <div class="picker-section">
-          <label>Избери час</label>
-          <div class="time-slots-container">
-            <!-- JavaScript will populate this if configured -->
-            <button type="button" class="time-slot active">08:00</button>
-            <button type="button" class="time-slot">08:30</button>
-            <button type="button" class="time-slot">09:00</button>
-            <button type="button" class="time-slot">09:30</button>
-            <button type="button" class="time-slot">10:00</button>
-          </div>
-        </div>
-
-        <!-- Note Row -->
-        <div class="form-row full" style="margin-top: 20px;">
-          <div>
-            <label for="note">Бележка (по желание)</label>
-            <textarea id="note" placeholder="Например: предпочитан бръснар, специално пожелание..."></textarea>
-          </div>
-        </div>
-
-        <div class="submit-row">
-          <button type="submit" class="btn-primary">Запази час</button>
-        </div>
-      </form>
-
-      <div class="confirm-box" id="confirmBox">
-        <div class="confirm-ring">✓</div>
-        <h3>Заявката е изпратена!</h3>
-        <p>Ще се свържем с теб на посочения телефон, за да потвърдим часа.</p>
+    </div>
+    <!-- Email -->
+    <div class="form-row full">
+      <div>
+        <label for="email">
+          Имейл (по желание)
+        </label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="example@email.com"
+        >
       </div>
     </div>
+    <!-- Service Selector Row -->
+    <div class="form-row full">
+
+      <div>
+
+        <label for="service">
+          Услуга
+        </label>
+
+
+        <select 
+          id="service"
+          name="service"
+          required
+        >
+
+          <option value="">
+            Избери услуга
+          </option>
+
+          <option value="Fade / Skin Fade — 9 €">
+            Fade / Skin Fade — 9 €
+          </option>
+
+          <option value="Класическо подстригване — 8 €">
+            Класическо подстригване — 8 €
+          </option>
+
+          <option value="Детско — 7 €">
+            Детско — 7 €
+          </option>
+
+          <option value="Оформяне на брада — 5 €">
+            Оформяне на брада — 5 €
+          </option>
+
+          <option value="Брада с машинка — 3 €">
+            Брада с машинка — 3 €
+          </option>
+
+          <option value="Коса + брада — 15 €">
+            Коса + брада — 15 €
+          </option>
+
+          <option value="Кола маска — 4 €">
+            Кола маска — 4 €
+          </option>
+
+          <option value="Кална / глинена маска — 2 €">
+            Кална / глинена маска — 2 €
+          </option>
+
+        </select>
+
+      </div>
+
+    </div>
+
+
+
+
+
+    <!-- CALENDAR UI -->
+    <div class="picker-section">
+
+      <div class="picker-header">
+
+        <span 
+          class="picker-month" 
+          id="currentMonth"
+        >
+          Юли 2026
+        </span>
+
+
+        <div class="picker-nav">
+
+          <button 
+            type="button" 
+            class="btn-picker-arrow"
+          >
+            &lt;
+          </button>
+
+
+          <button 
+            type="button" 
+            class="btn-picker-arrow"
+          >
+            &gt;
+          </button>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="calendar-days-header">
+
+        <span>ПОН</span>
+        <span>ВТО</span>
+        <span>СРЯ</span>
+        <span>ЧЕТ</span>
+        <span>ПЕТ</span>
+        <span>СЪБ</span>
+        <span>НЕД</span>
+
+      </div>
+
+
+
+      <div class="calendar-grid">
+
+        <span class="day disabled">29</span>
+        <span class="day disabled">30</span>
+
+        <span class="day">1</span>
+        <span class="day">2</span>
+        <span class="day">3</span>
+        <span class="day">4</span>
+        <span class="day">5</span>
+
+        <span class="day">6</span>
+        <span class="day">7</span>
+        <span class="day">8</span>
+        <span class="day">9</span>
+        <span class="day">10</span>
+        <span class="day">11</span>
+        <span class="day">12</span>
+
+        <span class="day">13</span>
+        <span class="day">14</span>
+        <span class="day">15</span>
+        <span class="day active">16</span>
+        <span class="day">17</span>
+        <span class="day">18</span>
+        <span class="day">19</span>
+
+        <span class="day">20</span>
+        <span class="day">21</span>
+        <span class="day">22</span>
+        <span class="day">23</span>
+        <span class="day">24</span>
+        <span class="day">25</span>
+        <span class="day">26</span>
+
+        <span class="day">27</span>
+        <span class="day">28</span>
+        <span class="day">29</span>
+        <span class="day">30</span>
+        <span class="day">31</span>
+
+      </div>
+
+    </div>
+
+
+
+
+
+    <!-- TIME SLOTS -->
+    <div class="picker-section">
+
+      <label>
+        Избери час
+      </label>
+
+
+      <div class="time-slots-container">
+
+        <!-- Filled dynamically from backend -->
+
+      </div>
+
+
+    </div>
+
+
+
+
+
+    <!-- Note -->
+    <div 
+      class="form-row full"
+      style="margin-top:20px;"
+    >
+
+      <div>
+
+        <label for="note">
+          Бележка (по желание)
+        </label>
+
+
+        <textarea
+          id="note"
+          name="note"
+          placeholder="Например: предпочитан бръснар, специално пожелание..."
+        ></textarea>
+
+      </div>
+
+    </div>
+
+
+
+
+
+    <div class="submit-row">
+
+      <button 
+        type="submit"
+        class="btn-primary"
+      >
+        Запази час
+      </button>
+
+    </div>
+
+
+  </form>
+  <div 
+    class="confirm-box"
+    id="confirmBox"
+  >
+    <div class="confirm-ring">
+      ✓
+    </div>
+    <h3>
+      Заявката е изпратена!
+    </h3>
+    <p>
+      Ще се свържем с теб на посочения телефон, за да потвърдим часа.
+    </p>
+  </div>
+</div>
   </div>
 </div>
 
