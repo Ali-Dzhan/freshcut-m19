@@ -229,7 +229,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const PRODUCTION_URL = 'https://freshcut-m19.onrender.com'; 
   const LOCAL_URL = `http://${window.location.hostname}:3000`;
 
-  const apiHost = isProduction ? PRODUCTION_URL : LOCAL_URL;
+  const apiHost = 'https://freshcut-m19.onrender.com';
   let displayedDate = new Date();
   displayedDate.setDate(1); // Set to the first of the month to avoid month-end issues
 
