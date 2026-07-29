@@ -214,7 +214,16 @@ document.addEventListener("DOMContentLoaded", () => {
   // 3. APPOINTMENT SCHEDULING LOGIC
   // ==========================================
   
-  const apiHost = `http://${window.location.hostname}:3000`;
+  // We need to use a different URL for the backend when deployed vs. when running locally.
+  // Your GitHub Pages site will be on HTTPS, so your backend must also be on HTTPS.
+  const isProduction = window.location.hostname.includes('github.io');
+  
+  // IMPORTANT: You must deploy your backend to a service like Render or Vercel
+  // and replace this placeholder URL with your actual public backend URL.
+  const PRODUCTION_URL = 'https://your-backend-app-name.onrender.com'; // <-- REPLACE THIS
+  const LOCAL_URL = `http://${window.location.hostname}:3000`;
+
+  const apiHost = isProduction ? PRODUCTION_URL : LOCAL_URL;
   let displayedDate = new Date();
   displayedDate.setDate(1); // Set to the first of the month to avoid month-end issues
 
@@ -329,10 +338,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
 
-        const response = await fetch(
-            `http://localhost:3000/available-slots?date=${dateString}`
-            `${apiHost}/available-slots?date=${dateString}`
-        );
+        const response = await fetch(`${apiHost}/available-slots?date=${dateString}`);
 
         let slots = await response.json();
 
@@ -485,25 +491,13 @@ if (form && confirmBox) {
         try {
 
 
-            const response =
-                await fetch(
-                    "http://localhost:3000/book",
-                    `${apiHost}/book`,
-                    {
-
-                        method:"POST",
-
-                        headers:{
-                            "Content-Type":
-                            "application/json"
-                        },
-
-
-                        body:
-                        JSON.stringify(booking)
-
-                    }
-                );
+            const response = await fetch(`${apiHost}/book`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(booking),
+            });
             const result =
                 await response.json();
 
