@@ -199,68 +199,51 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // 2. CALENDAR DAY SELECTION
+  // 3. APPOINTMENT SCHEDULING LOGIC
   // ==========================================
-
-  const calendarDays = document.querySelectorAll(".calendar-grid .day:not(.disabled)");
-
-  calendarDays.forEach(day => {
-    day.addEventListener("click", () => {
-      calendarDays.forEach(d => d.classList.remove("active"));
-      day.classList.add("active");
-    });
-  });
-
-  // ==========================================
-  // 3. WORKING DAYS & HOURS
-  // ==========================================
-
   const schedule = {
     tuesday: [
-      "10:00","10:30","11:00","11:30",
-      "12:00","12:30","13:00","13:30",
-      "14:00","14:30","15:00","15:30",
-      "16:00","16:30","17:00","17:30",
-      "18:00","18:30"
+      "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30",
+      "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30",
+      "18:00", "18:30",
     ],
     wednesday: [
-      "10:00","10:30","11:00","11:30",
-      "12:00","12:30","13:00","13:30",
-      "14:00","14:30","15:00","15:30",
-      "16:00","16:30","17:00","17:30",
-      "18:00","18:30"
+      "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30",
+      "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30",
+      "18:00", "18:30",
     ],
     thursday: [
-      "10:00","10:30","11:00","11:30",
-      "12:00","12:30","13:00","13:30",
-      "14:00","14:30","15:00","15:30",
-      "16:00","16:30","17:00","17:30",
-      "18:00","18:30"
+      "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30",
+      "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30",
+      "18:00", "18:30",
     ],
     friday: [
-      "10:00","10:30","11:00","11:30",
-      "12:00","12:30","13:00","13:30",
-      "14:00","14:30","15:00","15:30",
-      "16:00","16:30","17:00","17:30",
-      "18:00","18:30"
+      "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30",
+      "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30",
+      "18:00", "18:30",
     ],
     saturday: [
-      "10:00","10:30","11:00","11:30",
-      "12:00","12:30","13:00","13:30",
-      "14:00","14:30","15:00","15:30",
-      "16:00","16:30","17:00","17:30"
-    ]
+      "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30",
+      "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30",
+    ],
   };
 
-  const dayButtons = document.querySelectorAll(".period-pill:not(.disabled)");
+  const calendarDays = document.querySelectorAll(".calendar-grid .day:not(.disabled)");
   const slotsContainer = document.querySelector(".time-slots-container");
+  const dayMap = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
 
   function renderSlots(day) {
-    if (!slotsContainer || !schedule[day]) return;
-
+    if (!slotsContainer) return;
     slotsContainer.innerHTML = "";
 
-    schedule[day].forEach(time => {
+    const daySchedule = schedule[day];
+
+    if (!daySchedule || daySchedule.length === 0) {
+      slotsContainer.innerHTML = `<p class="no-slots-message">Затворено. Моля, изберете друг ден.</p>`;
+      return;
+    }
+
+    daySchedule.forEach((time) => {
       const button = document.createElement("button");
 
       button.type = "button";
@@ -268,7 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
       button.textContent = time;
 
       button.addEventListener("click", () => {
-        document.querySelectorAll(".time-slot").forEach(slot => {
+        document.querySelectorAll(".time-slot").forEach((slot) => {
           slot.classList.remove("active");
         });
 
@@ -279,15 +262,25 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  dayButtons.forEach(button => {
-    button.addEventListener("click", () => {
-      dayButtons.forEach(btn => btn.classList.remove("active"));
-      button.classList.add("active");
-      renderSlots(button.dataset.day);
+  calendarDays.forEach((day) => {
+    day.addEventListener("click", () => {
+      calendarDays.forEach((d) => d.classList.remove("active"));
+      day.classList.add("active");
+
+      const dayNumber = parseInt(day.textContent, 10);
+      const date = new Date(2026, 6, dayNumber); // Month is 0-indexed (6 = July)
+      const dayName = dayMap[date.getDay()];
+      renderSlots(dayName);
     });
   });
 
-  renderSlots("tuesday");
+  // Initial render based on the pre-selected day
+  const initiallyActiveDay = document.querySelector(".calendar-grid .day.active");
+  if (initiallyActiveDay) {
+    initiallyActiveDay.click();
+  } else if (calendarDays.length > 0) {
+    calendarDays[0].click();
+  }
 
  // ==========================================
   // 4. BOOKING FORM
@@ -306,17 +299,30 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // 5. MODAL POP-UP LOGIC
+  // 5. MODAL POP-UP LOGIC (Multi-Trigger)
   // ==========================================
-  const openBookingBtn = document.getElementById("openBookingBtn");
   const bookingModal = document.getElementById("bookingModal");
   const closeModalBtn = document.getElementById("closeModalBtn");
+  
+  // Select ALL buttons that should open the modal
+  const openBookingBtns = document.querySelectorAll("#openBookingBtn, .trigger-booking");
 
-  if (openBookingBtn && bookingModal && closeModalBtn) {
-    // Open Modal
-    openBookingBtn.addEventListener("click", () => {
-      bookingModal.classList.add("active");
-      document.body.style.overflow = "hidden"; // Prevent background scrolling
+  if (bookingModal && closeModalBtn) {
+    // Loop through all trigger buttons and attach the open event
+    openBookingBtns.forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault(); // Stop any default link behavior
+        bookingModal.classList.add("active");
+        document.body.style.overflow = "hidden"; // Prevent background scrolling
+        
+        // If clicked from the mobile menu, close the mobile menu automatically
+        const mobileMenu = document.getElementById("mobileMenu");
+        const burgerBtn = document.getElementById("burgerBtn");
+        if (mobileMenu && mobileMenu.classList.contains("open")) {
+          mobileMenu.classList.remove("open");
+          burgerBtn.classList.remove("active");
+        }
+      });
     });
 
     // Close Modal via 'X' Button
@@ -332,5 +338,49 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.style.overflow = "";
       }
     });
+
+    // Drag/Scroll to close on mobile
+    const modalContent = bookingModal.querySelector(".modal-content");
+    let touchStartY = 0;
+
+    const handleTouchStart = (e) => {
+      // Only on mobile and when scrolled to the top of the modal content
+      if (window.innerWidth <= 580 && modalContent.scrollTop === 0) {
+        touchStartY = e.touches[0].clientY;
+        modalContent.style.transition = "none"; // Allow smooth dragging
+      } else {
+        touchStartY = 0;
+      }
+    };
+
+    const handleTouchMove = (e) => {
+      if (touchStartY === 0) return;
+
+      const touchY = e.touches[0].clientY;
+      const deltaY = touchY - touchStartY;
+
+      if (deltaY > 0) { // Only allow dragging down
+        e.preventDefault();
+        modalContent.style.transform = `translateY(${deltaY}px)`;
+      }
+    };
+
+    const handleTouchEnd = (e) => {
+      if (touchStartY === 0) return;
+      const touchY = e.changedTouches[0].clientY;
+      const deltaY = touchY - touchStartY;
+      modalContent.style.transition = "transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)";
+      if (deltaY > 100) { // If dragged more than 100px, close it
+        bookingModal.classList.remove("active");
+        document.body.style.overflow = "";
+      }
+      // Reset the inline style. CSS will handle snapping back or closing.
+      modalContent.style.transform = "";
+      touchStartY = 0; // Reset for next touch
+    };
+
+    modalContent.addEventListener("touchstart", handleTouchStart, { passive: false });
+    modalContent.addEventListener("touchmove", handleTouchMove, { passive: false });
+    modalContent.addEventListener("touchend", handleTouchEnd);
   }
 });
