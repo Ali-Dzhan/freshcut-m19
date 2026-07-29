@@ -1,102 +1,122 @@
-/* RESPONSIVE MEDIA QUERIES */
-@media(max-width:900px){
-  .gallery-grid{
-    grid-template-columns:1fr;
-    grid-template-rows:auto;
+/* ==========================================
+   RESPONSIVE MEDIA QUERIES (responsive.css)
+   ========================================== */
+
+/* 1. TABLETS & CAROUSEL SWITCH (<= 900px) */
+@media (max-width: 900px) {
+  .gallery-grid {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 16px;
+    padding: 10px 0 20px 0;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
-  .gallery-item.large{
-    grid-row:auto;
+
+  .gallery-grid::-webkit-scrollbar {
+    display: none;
   }
-  .gallery-item{
-    height:260px;
+
+  .gallery-item,
+  .gallery-item.large {
+    min-width: 85%;
+    width: 85%;
+    flex-shrink: 0;
+    scroll-snap-align: center;
+    grid-row: auto;
+  }
+
+  .gallery-item img {
+    aspect-ratio: 16 / 10;
+  }
+
+  .gallery-item::after {
+    opacity: 1;
   }
 }
 
-@media (max-width: 480px) {
-  .tagline-top {
-    font-size: 13px;
-    letter-spacing: 0.22em;
-    gap: 8px;
-  }
-  
-  .tagline-bottom {
-    font-size: 11px;
-    letter-spacing: 0.28em;
-  }
-
-  .tagline-divider {
-    max-width: 240px;
-  }
+/* 2. TABLETS & LARGE PHONES (<= 720px) */
+@media (max-width: 720px) {
+  .nav-links { display: none; }
+  .wrap { padding: 0 16px; }
+  .burger { display: flex; }
+  .contact-grid { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  .contact-card { padding: 24px 18px; }
+  section { padding: 60px 18px; width: 100%; overflow: hidden; }
 }
 
-@media (max-width:720px){
-  .nav-links{display:none;}
-  .burger{display:flex;}
-  .contact-grid{grid-template-columns:1fr;}
-  .form-row{grid-template-columns:1fr;}
-  .booking-panel{padding:28px 18px;}
-  .contact-card{padding:24px 18px;}
-  section{padding:60px 18px;}
-}
-
+/* 3. SMALL TABLETS & MEDIUM PHONES (<= 580px) */
 @media (max-width: 580px) {
   .services-menu-list {
     padding: 20px 16px;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .item-name { font-size: 15px; }
+  .item-price { font-size: 18px; }
+  .item-price.free { font-size: 13px; }
+  .menu-icon { width: 22px; height: 22px; }
+  .item-dots { display: none; }
+  .menu-item { justify-content: space-between; }
+
+  /* ==========================================
+     iOS BOTTOM SHEET MODAL (MOBILE)
+     ========================================== */
+  .modal-overlay {
+    align-items: flex-end; /* Align modal to the very bottom */
   }
   
-  .item-name {
-    font-size: 15px;
+  .modal-content {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    max-height: 88vh; /* Give space at top like an iPhone app */
+    transform: translateY(100%); /* Start completely off-screen below */
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
   
-  .item-price {
-    font-size: 18px;
-  }
-  
-  .item-price.free {
-    font-size: 13px;
-  }
-  
-  .menu-icon {
-    width: 22px;
-    height: 22px;
-  }
-  
-  .item-dots {
-    display: none; /* Hide dots on very small screens to avoid overflow */
-  }
-  
-  .menu-item {
-    justify-content: space-between;
+  .modal-drag-handle {
+    display: block; /* Show the iOS swipe indicator */
+    width: 40px;
+    height: 5px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    margin: 12px auto 0;
   }
 }
 
-@media (max-width:480px){
-  .nav-cta{display:none;}
-
-  .hero {
-    padding: 60px 16px 50px;
-  }
-
-  .hero h1 {
-    font-size: 42px;
-  }
-
-  .hero p.sub {
-    font-size: 14px;
-    margin-bottom: 28px;
-  }
-
+/* 4. MOBILE PHONES (<= 480px) */
+@media (max-width: 480px) {
+  .nav-cta { display: none; }
+  .hero { padding: 60px 16px 50px; width: 100%; overflow: hidden; }
+  .hero h1 { font-size: 42px; }
+  .hero p.sub { font-size: 14px; margin-bottom: 28px; }
+  
   .hero-actions {
     gap: 8px;
+    width: 100%;
+    padding: 0;
   }
 
-  .btn-primary, .btn-ghost {
+  .btn-primary,
+  .btn-ghost {
     font-size: 13px;
     padding: 12px 8px;
   }
 
-  .rating-strip {
-    margin-top: 36px;
-    font-size: 13px;
+  .rating-strip { margin-top: 36px; font-size: 13px; }
+
+  /* Tagline overflow prevention */
+  .hero-tagline {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    padding: 0 8px;
   }
+
+  .tagline-top { font-size: 11px; letter-spacing: 0.12em; gap: 6px; }
+  .tagline-bottom { font-size: 10px; letter-spacing: 0.18em; }
+  .tagline-divider { max-width: 180px; }
 }

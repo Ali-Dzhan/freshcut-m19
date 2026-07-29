@@ -289,7 +289,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   renderSlots("tuesday");
 
-  // ==========================================
+ // ==========================================
   // 4. BOOKING FORM
   // ==========================================
 
@@ -302,6 +302,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
       form.classList.add("hide");
       confirmBox.classList.add("show");
+    });
+  }
+
+  // ==========================================
+  // 5. MODAL POP-UP LOGIC
+  // ==========================================
+  const openBookingBtn = document.getElementById("openBookingBtn");
+  const bookingModal = document.getElementById("bookingModal");
+  const closeModalBtn = document.getElementById("closeModalBtn");
+
+  if (openBookingBtn && bookingModal && closeModalBtn) {
+    // Open Modal
+    openBookingBtn.addEventListener("click", () => {
+      bookingModal.classList.add("active");
+      document.body.style.overflow = "hidden"; // Prevent background scrolling
+    });
+
+    // Close Modal via 'X' Button
+    closeModalBtn.addEventListener("click", () => {
+      bookingModal.classList.remove("active");
+      document.body.style.overflow = ""; // Restore scrolling
+    });
+
+    // Close Modal by clicking outside the box
+    bookingModal.addEventListener("click", (e) => {
+      if (e.target === bookingModal) {
+        bookingModal.classList.remove("active");
+        document.body.style.overflow = "";
+      }
     });
   }
 });
