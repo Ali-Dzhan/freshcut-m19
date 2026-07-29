@@ -150,6 +150,21 @@ nav .brand {
   gap: 10px;
 }
 
+.hero-m19 {
+  display: inline-block;
+  font-family: 'Orbitron', sans-serif; /* Changed to Orbitron */
+  font-weight: 900;
+  transform: skewX(-16deg); 
+  font-size: 1em; 
+  line-height: 0.9;
+  
+  color: #141714; 
+  -webkit-text-stroke: 4px var(--white);
+  letter-spacing: -0.04em; 
+  padding-right: 8px; 
+  filter: drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.8));
+}
+
 /* STYLE · FADE · PRECISION */
 .tagline-top {
   font-family: 'JetBrains Mono', monospace;
@@ -437,10 +452,87 @@ nav .brand {
 .reviews-link{text-align:center; margin-top:36px;}
 .reviews-link a{color:var(--green-hi); font-weight:600; font-size:14px; text-decoration:none; border-bottom:1px solid rgba(163,224,102,0.4);}
 
-/* BOOKING */
 /* ==========================================
-   BOOKING BUTTON & iOS MODAL
+   BOOKING SECTION ENHANCEMENTS
    ========================================== */
+
+/* Centers the dot and text */
+.live-eyebrow {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.live-eyebrow::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background-color: var(--green-hi);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--green-hi);
+  animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 0 0 rgba(163, 224, 102, 0.7); }
+  70% { box-shadow: 0 0 0 8px rgba(163, 224, 102, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(163, 224, 102, 0); }
+}
+
+.booking-cta-section {
+  position: relative;
+  padding-bottom: 60px;
+}
+
+.booking-cta-section::before {
+  content: '';
+  position: absolute;
+  top: 50%; 
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 350px; 
+  height: 350px;
+  background: radial-gradient(circle, rgba(120,185,60,0.08) 0%, rgba(0,0,0,0) 70%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* The physical dot */
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--green-hi);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--green-hi);
+  animation: pulse-glow 2s infinite;
+}
+
+/* The breathing animation */
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 0 0 rgba(163, 224, 102, 0.7); }
+  70% { box-shadow: 0 0 0 8px rgba(163, 224, 102, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(163, 224, 102, 0); }
+}
+
+/* Optional: Adds a very faint green spotlight behind the whole section */
+.booking-cta-section {
+  position: relative;
+  padding-bottom: 60px;
+}
+
+.booking-cta-section::before {
+  content: '';
+  position: absolute;
+  top: 50%; 
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 350px; 
+  height: 350px;
+  background: radial-gradient(circle, rgba(120,185,60,0.08) 0%, rgba(0,0,0,0) 70%);
+  z-index: -1;
+  pointer-events: none;
+}
 
 /* The Split Button */
 .split-booking-btn {

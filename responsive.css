@@ -100,6 +100,13 @@
     padding: 0;
   }
 
+  @media (max-width: 480px) {
+  .hero-m19 {
+    -webkit-text-stroke: 2.5px var(--white);
+    letter-spacing: -0.02em;
+  }
+}
+
   .btn-primary,
   .btn-ghost {
     font-size: 13px;

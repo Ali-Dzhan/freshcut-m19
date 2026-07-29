@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="layout.css">
 <link rel="stylesheet" href="responsive.css">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -57,7 +58,7 @@
   
   <div class="hero-content-wrapper">
     <div class="eyebrow">Бръснарски салон · Русе</div>
-    <h1>Fresh<span>Cut</span><br>M19</h1>
+    <h1>Fresh<span>Cut</span><br><span class="hero-m19">M19</span></h1>
     
     <!-- HERO SUBTITLE TAGLINE -->
     <div class="hero-tagline">
@@ -372,17 +373,19 @@
 </section>
 
 <!-- === BOOKING BUTTON SECTION === -->
-<section id="booking">
+<section id="booking" class="booking-cta-section">
   <div class="wrap" style="text-align: center;">
     <div class="section-head">
-      <div class="eyebrow">Резервация</div>
-      <h2>Запази своя час</h2>
-      <p>Избери услуга и час бързо и лесно изцяло онлайн.</p>
+        <div class="eyebrow live-eyebrow">
+          Онлайн резервация
+        </div>
+      <h2>Твоят стил те очаква</h2>
+      <p>Осигури си перфектната визия само с няколко клика.</p>
     </div>
 
     <!-- The Split Button -->
-    <button id="openBookingBtn" class="split-booking-btn">
-      <span class="btn-text">Запази час</span>
+    <button id="openBookingBtn" class="split-booking-btn trigger-booking">
+      <span class="btn-text">Избери час</span>
       <span class="btn-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
