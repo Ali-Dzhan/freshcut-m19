@@ -226,7 +226,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
   // IMPORTANT: You must deploy your backend to a service like Render or Vercel
   // and replace this placeholder URL with your actual public backend URL.
-  const PRODUCTION_URL = 'https://your-backend-app-name.onrender.com'; // <-- REPLACE THIS
+  const PRODUCTION_URL = 'https://freshcut-m19.onrender.com'; // <-- REPLACE THIS
   const LOCAL_URL = `http://${window.location.hostname}:3000`;
 
   const apiHost = isProduction ? PRODUCTION_URL : LOCAL_URL;
