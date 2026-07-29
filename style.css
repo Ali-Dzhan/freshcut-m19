@@ -14,25 +14,24 @@
   box-sizing: border-box;
 }
 
-html, body {
+html {
   max-width: 100%;
   width: 100%;
-  overflow-x: hidden;
-  position: relative; /* This helps contain absolute elements */
   margin: 0;
   padding: 0;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden; /* Keeping it here on body only can sometimes still block sticky in certain browsers, so ensure no wrapper has overflow hidden */
 }
 
 html{scroll-behavior:smooth;}
-
-body{
-  margin:0;
-  background:var(--bg);
-  color:var(--white);
-  font-family:'Inter',sans-serif;
-  -webkit-font-smoothing:antialiased;
-  overflow-x:hidden;
-}
 
 h1,h2,h3,.display{font-family:'Syne',sans-serif; letter-spacing:-0.01em;}
 .mono{font-family:'JetBrains Mono',monospace;}
