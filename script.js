@@ -214,36 +214,114 @@ document.addEventListener("DOMContentLoaded", () => {
   // 3. APPOINTMENT SCHEDULING LOGIC
   // ==========================================
   
+  let displayedDate = new Date();
+  displayedDate.setDate(1); // Set to the first of the month to avoid month-end issues
 
+  const calendarGrid = document.querySelector(".calendar-grid");
   const slotsContainer = document.querySelector(".time-slots-container");
   const submitBtn = document.querySelector('#bookingForm button[type="submit"]');
+  const monthElement = document.getElementById("currentMonth");
+  const prevMonthBtn = document.querySelector(".picker-nav .btn-picker-arrow:first-child");
+  const nextMonthBtn = document.querySelector(".picker-nav .btn-picker-arrow:last-child");
 
   // Helper function to check booking state and toggle submit button
   function updateSubmitButtonState() {
     if (!submitBtn) return;
-    const activeDay = document.querySelector(".calendar-grid .day.active:not(.disabled)");
+    const activeDay = document.querySelector(
+      ".calendar-grid .day.active:not(.disabled)"
+    );
     const activeSlot = document.querySelector(".time-slot.active");
     submitBtn.disabled = !(activeDay && activeSlot);
   }
 
-  // Disable Sundays (0) and Mondays (1)
-  document.querySelectorAll(".calendar-grid .day").forEach(day => {
-    if (day.classList.contains('disabled')) return; // Skip already disabled (past) days
+  function generateCalendar(date) {
+    if (!calendarGrid || !monthElement) return;
 
-    const dayNumber = parseInt(day.textContent, 10);
-    const date = new Date(2026, 6, dayNumber); // Month is 0-indexed (6 = July)
-    const dayOfWeek = date.getDay();
+    const year = date.getFullYear();
+    const month = date.getMonth();
 
-    if (dayOfWeek === 0 || dayOfWeek === 1) {
-        day.classList.add("disabled");
+    const monthName = new Intl.DateTimeFormat("bg-BG", { month: "long" }).format(date);
+    monthElement.textContent = `${monthName.charAt(0).toUpperCase() + monthName.slice(1)} ${year}`;
+
+    calendarGrid.innerHTML = "";
+
+    const firstDayOfMonth = new Date(year, month, 1).getDay();
+    const dayOffset = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
+
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+    const currentDate = now.getDate();
+
+    // Previous month's trailing days
+    for (let i = dayOffset - 1; i >= 0; i--) {
+      const dayEl = document.createElement("span");
+      dayEl.className = "day disabled";
+      dayEl.textContent = daysInPrevMonth - i;
+      calendarGrid.appendChild(dayEl);
     }
-  });
 
-  const calendarDays = document.querySelectorAll(".calendar-grid .day:not(.disabled)");
+    // Current month's days
+    for (let i = 1; i <= daysInMonth; i++) {
+      const dayEl = document.createElement("span");
+      dayEl.className = "day";
+      dayEl.textContent = i;
 
-  async function renderSlots(date) {
+      const dayDate = new Date(year, month, i);
+      const dayOfWeek = dayDate.getDay();
+
+      const isPastDay = year < currentYear ||
+        (year === currentYear && month < currentMonth) ||
+        (year === currentYear && month === currentMonth && i < currentDate);
+
+      if (isPastDay || dayOfWeek === 0 || dayOfWeek === 1) {
+        dayEl.classList.add("disabled");
+      }
+
+      if (!dayEl.classList.contains("disabled")) {
+        dayEl.addEventListener("click", () => {
+          const currentActiveDay = document.querySelector(".calendar-grid .day.active");
+          if (currentActiveDay) currentActiveDay.classList.remove("active");
+          dayEl.classList.add("active");
+
+          const currentActiveSlot = document.querySelector(".time-slot.active");
+          if (currentActiveSlot) currentActiveSlot.classList.remove("active");
+
+          const formattedDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(i).padStart(2, "0")}`;
+          selectedDate = formattedDate;
+          renderSlots(formattedDate);
+        });
+      }
+      calendarGrid.appendChild(dayEl);
+    }
+
+    // Next month's leading days
+    const totalDays = dayOffset + daysInMonth;
+    const remainingCells = totalDays % 7 === 0 ? 0 : 7 - (totalDays % 7);
+    for (let i = 1; i <= remainingCells; i++) {
+      const dayEl = document.createElement("span");
+      dayEl.className = "day disabled";
+      dayEl.textContent = i;
+      calendarGrid.appendChild(dayEl);
+    }
+
+    // Disable/enable prev month button
+    if (prevMonthBtn) {
+      prevMonthBtn.disabled = year === currentYear && month === currentMonth;
+    }
+  }
+
+  async function renderSlots(dateString) {
 
     if (!slotsContainer) return;
+
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+    const currentDate = now.getDate();
 
     slotsContainer.innerHTML = 
         `<p class="loading-message">Зареждане...</p>`;
@@ -251,10 +329,32 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
 
         const response = await fetch(
-            `http://localhost:3000/available-slots?date=${date}`
+            `http://localhost:3000/available-slots?date=${dateString}`
         );
 
-        const slots = await response.json();
+        let slots = await response.json();
+
+        // Filter out past time slots for today
+        const selectedDate = new Date(dateString);
+        const isToday = selectedDate.getFullYear() === currentYear &&
+                        selectedDate.getMonth() === currentMonth &&
+                        selectedDate.getDate() === currentDate;
+
+        if (isToday) {
+            const currentHour = now.getHours();
+            const currentMinutes = now.getMinutes();
+            
+            slots = slots.filter(time => {
+                const [hour, minutes] = time.split(':').map(Number);
+                if (hour > currentHour) {
+                    return true; // Slot is in a future hour
+                }
+                if (hour === currentHour && minutes >= currentMinutes) {
+                    return true; // Slot is in the current hour but in the future
+                }
+                return false; // Slot is in the past
+            });
+        }
 
         slotsContainer.innerHTML = "";
 
@@ -307,43 +407,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
 }
 
-  calendarDays.forEach((day) => {
-    day.addEventListener("click", () => {
-      // Clear active time slot when changing day
-      const activeSlot = document.querySelector(".time-slot.active");
-      if (activeSlot) activeSlot.classList.remove("active");
+  // Initial Calendar Setup
+  if (calendarGrid) {
+    generateCalendar(displayedDate);
 
-      calendarDays.forEach((d) => d.classList.remove("active"));
-      day.classList.add("active");
+    const firstAvailableDay = document.querySelector(".calendar-grid .day:not(.disabled)");
+    if (firstAvailableDay) {
+      firstAvailableDay.click();
+    } else {
+      slotsContainer.innerHTML = `<p class="no-slots-message">Няма налични дни този месец.</p>`;
+      updateSubmitButtonState();
+    }
 
-      const dayNumber = parseInt(day.textContent, 10);
-      const date = new Date(2026, 6, dayNumber); // Month is 0-indexed (6 = July)
-
-      const formattedDate =
-      date.toISOString().split("T")[0];
-
-
-      renderSlots(formattedDate);
+    nextMonthBtn.addEventListener("click", () => {
+      displayedDate.setMonth(displayedDate.getMonth() + 1);
+      generateCalendar(displayedDate);
+      slotsContainer.innerHTML = '<p class="no-slots-message">Моля, изберете ден.</p>';
+      updateSubmitButtonState();
     });
-  });
 
-  // Initial render based on the pre-selected day
-  const activeDay = document.querySelector(".calendar-grid .day.active");
-  if (activeDay && activeDay.classList.contains('disabled')) {
-    // If the pre-selected day is disabled (e.g., it's a Monday), remove active class
-    activeDay.classList.remove('active');
+    prevMonthBtn.addEventListener("click", () => {
+      displayedDate.setMonth(displayedDate.getMonth() - 1);
+      generateCalendar(displayedDate);
+      slotsContainer.innerHTML = '<p class="no-slots-message">Моля, изберете ден.</p>';
+      updateSubmitButtonState();
+    });
   }
-
-  // Trigger click on the first available day to show slots, or the active one if it's valid
-  const firstAvailableDay = document.querySelector(".calendar-grid .day:not(.disabled)");
-  const validActiveDay = document.querySelector(".calendar-grid .day.active:not(.disabled)");
-
-  if (validActiveDay) {
-    validActiveDay.click();
-  } else if (firstAvailableDay) {
-    firstAvailableDay.click();
-  }
-  updateSubmitButtonState();
 
  // ==========================================
 // 4. BOOKING FORM + BACKEND CONNECTION
@@ -352,31 +441,15 @@ document.addEventListener("DOMContentLoaded", () => {
 const form = document.getElementById("bookingForm");
 const confirmBox = document.getElementById("confirmBox");
 
+// These are now set globally by the calendar click and time slot click handlers
 let selectedTime = null;
 let selectedDate = null;
 
 // Track selected time
 document.addEventListener("click", (e) => {
-
     if (e.target.classList.contains("time-slot")) {
         selectedTime = e.target.textContent;
     }
-
-});
-
-// Track selected date
-document.querySelectorAll(".calendar-grid .day")
-.forEach(day => {
-    day.addEventListener("click", () => {
-        if(day.classList.contains("disabled"))
-            return;
-        const dayNumber =
-            parseInt(day.textContent, 10);
-        const date =
-            new Date(2026, 6, dayNumber);
-        selectedDate =
-            date.toISOString().split("T")[0];
-    });
 });
 if (form && confirmBox) {
     form.addEventListener("submit", async function(e) {
