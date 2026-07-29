@@ -214,6 +214,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // 3. APPOINTMENT SCHEDULING LOGIC
   // ==========================================
   
+  const apiHost = `http://${window.location.hostname}:3000`;
   let displayedDate = new Date();
   displayedDate.setDate(1); // Set to the first of the month to avoid month-end issues
 
@@ -330,6 +331,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const response = await fetch(
             `http://localhost:3000/available-slots?date=${dateString}`
+            `${apiHost}/available-slots?date=${dateString}`
         );
 
         let slots = await response.json();
@@ -486,6 +488,7 @@ if (form && confirmBox) {
             const response =
                 await fetch(
                     "http://localhost:3000/book",
+                    `${apiHost}/book`,
                     {
 
                         method:"POST",
