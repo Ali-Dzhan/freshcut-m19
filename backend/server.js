@@ -10,6 +10,11 @@ const path = require("path");
 const db = require("./database");
 const PORT = process.env.PORT || 3000; // Updated to respect Render's dynamic port assignment
 
+const {
+    sendBookingNotification,
+    sendCustomerConfirmation
+} = require("./services/emailService");
+
 const JWT_SECRET = "freshcut-secret-key";
 
 // ==========================
@@ -351,9 +356,6 @@ function checkClosedDate(date, callback) {
         }
     );
 }
-
-
-
 
 function getOptionalCustomerId(req) {
     const token = readToken(req);
@@ -732,13 +734,6 @@ app.post("/book",(req,res)=>{
 
     const customerId = getOptionalCustomerId(req);
 
-    const path = require("path");
-
-    const { 
-        sendBookingNotification,
-        sendCustomerConfirmation
-    } = require("./services/emailService");
-
     if(!name || !phone || !service || !date || !time){
 
         return res.status(400).json({
@@ -929,9 +924,14 @@ app.post("/book",(req,res)=>{
                     };
 
 
+                   console.log("ABOUT TO SEND BARBER EMAIL");
+
                     sendBookingNotification(booking)
+                        .then(() => {
+                            console.log("BARBER EMAIL SUCCESS");
+                        })
                         .catch(error => {
-                            console.log("Barber email error:", error.message);
+                            console.log("BARBER EMAIL FAILED:", error);
                         });
 
 
@@ -1018,11 +1018,6 @@ authenticateAdmin,
 
 });
 
-
-
-
-
-
 // ==========================
 // CHANGE APPOINTMENT STATUS
 // ==========================
@@ -1062,10 +1057,6 @@ authenticateAdmin,
 
     }
 
-
-
-
-
     db.run(
 
         `
@@ -1093,17 +1084,13 @@ authenticateAdmin,
 
             }
 
-
-
             res.json({
 
                 success:true
 
             });
 
-
         }
-
 
     );
 

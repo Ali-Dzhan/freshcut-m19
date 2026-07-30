@@ -1,59 +1,80 @@
-const nodemailer = require("nodemailer");
+const SibApiV3Sdk = require("sib-api-v3-sdk");
 
-const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
-    secure: false,
-    auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
-    }
-});
+
+const defaultClient = SibApiV3Sdk.ApiClient.instance;
+
+
+defaultClient.authentications["api-key"].apiKey =
+    process.env.BREVO_API_KEY;
+
+
+const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+
 
 
 async function sendBookingNotification(booking) {
 
-    await transporter.sendMail({
-        from: process.env.EMAIL_FROM,
-        to: process.env.BARBER_EMAIL,
-        subject: "New FreshCut M19 Booking",
-        html: `
-            <h2>New Booking</h2>
+    const email = new SibApiV3Sdk.SendSmtpEmail();
 
-            <p>Name: ${booking.name}</p>
-            <p>Phone: ${booking.phone}</p>
-            <p>Email: ${booking.email}</p>
-            <p>Service: ${booking.service}</p>
-            <p>Date: ${booking.date}</p>
-            <p>Time: ${booking.time}</p>
-            <p>Note: ${booking.note || "None"}</p>
-        `
-    });
+    email.sender = {
+        name: "FreshCut M19",
+        email: "freshcutm19@gmail.com"
+    };
 
+    email.to = [
+        {
+            email: process.env.BARBER_EMAIL
+        }
+    ];
+
+    email.subject = "New FreshCut M19 Booking";
+
+    email.htmlContent = `
+        <h2>New Booking</h2>
+        <p>Name: ${booking.name}</p>
+        <p>Phone: ${booking.phone}</p>
+        <p>Email: ${booking.email}</p>
+        <p>Service: ${booking.service}</p>
+        <p>Date: ${booking.date}</p>
+        <p>Time: ${booking.time}</p>
+        <p>Note: ${booking.note || "None"}</p>
+    `;
+
+
+    return apiInstance.sendTransacEmail(email);
 }
+
 
 
 async function sendCustomerConfirmation(booking) {
 
-    await transporter.sendMail({
-        from: process.env.EMAIL_FROM,
-        to: booking.email,
-        subject: "FreshCut M19 Booking Received",
-        html: `
-            <h2>Hello ${booking.name}</h2>
+    const email = new SibApiV3Sdk.SendSmtpEmail();
 
-            <p>Your booking request has been received.</p>
+    email.sender = {
+        name: "FreshCut M19",
+        email: "freshcutm19@gmail.com"
+    };
 
-            <p>
-            Date: ${booking.date}<br>
-            Time: ${booking.time}
-            </p>
+    email.to = [
+        {
+            email: booking.email
+        }
+    ];
 
-            <p>We will confirm your appointment soon.</p>
-        `
-    });
+    email.subject = "FreshCut M19 Booking Received";
 
+    email.htmlContent = `
+        <h2>Hello ${booking.name}</h2>
+        <p>Your booking request has been received.</p>
+        <p>Date: ${booking.date}</p>
+        <p>Time: ${booking.time}</p>
+        <p>We will confirm your appointment soon.</p>
+    `;
+
+
+    return apiInstance.sendTransacEmail(email);
 }
+
 
 
 module.exports = {
