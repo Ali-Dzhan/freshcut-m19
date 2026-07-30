@@ -1,13 +1,13 @@
+require("dotenv").config();
+
 const express = require("express");
+const app = express();
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const path = require("path");
 
 const db = require("./database");
-
-const app = express();
-
 const PORT = process.env.PORT || 3000; // Updated to respect Render's dynamic port assignment
 
 const JWT_SECRET = "freshcut-secret-key";
@@ -276,24 +276,15 @@ function isValidBookingTime(date,time){
 
 
 
-    // Sunday + Monday closed
-    if(day === 0 || day === 1){
+    // Monday closed
+    if(day === 1){
 
         return false;
 
     }
 
 
-    let endHour = 19;
-
-
-    // Saturday closes 18:00
-    if(day === 6){
-
-        endHour = 18;
-
-    }
-
+    const endHour = 19;
 
 
     const hour = parseInt(time.split(":")[0]);
@@ -302,14 +293,14 @@ function isValidBookingTime(date,time){
 
 
 
-    if(hour < 10 || hour >= endHour){
+    if(hour < 10 || hour >= endHour) {
 
         return false;
 
     }
 
 
-    if(minutes !== 0 && minutes !== 30){
+    if(minutes !== 0) {
 
         return false;
 
@@ -741,7 +732,12 @@ app.post("/book",(req,res)=>{
 
     const customerId = getOptionalCustomerId(req);
 
+    const path = require("path");
 
+    const { 
+        sendBookingNotification,
+        sendCustomerConfirmation
+    } = require("./services/emailService");
 
     if(!name || !phone || !service || !date || !time){
 
@@ -921,6 +917,34 @@ app.post("/book",(req,res)=>{
                     }
 
 
+                    const booking = {
+                        id: this.lastID,
+                        name,
+                        phone,
+                        email,
+                        service,
+                        date,
+                        time,
+                        note
+                    };
+
+
+                    sendBookingNotification(booking)
+                        .catch(error => {
+                            console.log("Barber email error:", error.message);
+                        });
+
+
+                    if(email){
+
+                        sendCustomerConfirmation(booking)
+                            .catch(error => {
+                                console.log("Customer email error:", error.message);
+                            });
+
+                    }
+
+
 
                     res.json({
 
@@ -934,8 +958,6 @@ app.post("/book",(req,res)=>{
                 }
 
             );
-
-
 
         }
 
@@ -1250,7 +1272,8 @@ function generateWorkingHours(date){
 
 
 
-    if(day === 0 || day === 1){
+    // Monday closed
+    if(day === 1){
 
         return [];
 
@@ -1258,16 +1281,7 @@ function generateWorkingHours(date){
 
 
 
-    let endHour = 19;
-
-
-
-    if(day === 6){
-
-        endHour = 18;
-
-    }
-
+    const endHour = 19;
 
 
     const slots=[];
@@ -1280,12 +1294,6 @@ function generateWorkingHours(date){
         slots.push(
             `${hour}:00`
         );
-
-
-        slots.push(
-            `${hour}:30`
-        );
-
 
     }
 
