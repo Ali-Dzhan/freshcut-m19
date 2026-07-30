@@ -1,8 +1,6 @@
 const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
 
-const bcrypt = require("bcrypt");
-
 const dbPath = path.join(__dirname, "database", "freshcut.db");
 
 
@@ -24,6 +22,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
         db.run(`
             CREATE TABLE IF NOT EXISTS appointments (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                customer_id INTEGER,
                 name TEXT NOT NULL,
                 phone TEXT NOT NULL,
                 email TEXT,
@@ -36,6 +35,19 @@ const db = new sqlite3.Database(dbPath, (err) => {
             )
         `);
 
+        db.all(`PRAGMA table_info(appointments)`, [], (tableErr, columns) => {
+            if (tableErr) {
+                console.error("Appointments migration failed:", tableErr.message);
+                return;
+            }
+
+            const hasCustomerId = columns.some(column => column.name === "customer_id");
+
+            if (!hasCustomerId) {
+                db.run(`ALTER TABLE appointments ADD COLUMN customer_id INTEGER`);
+            }
+        });
+
 
 
         db.run(`
@@ -43,6 +55,27 @@ const db = new sqlite3.Database(dbPath, (err) => {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT UNIQUE NOT NULL,
                 password TEXT NOT NULL
+            )
+        `);
+
+        db.run(`
+            CREATE TABLE IF NOT EXISTS customers (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                phone TEXT,
+                password TEXT NOT NULL,
+                auth_provider TEXT DEFAULT 'local',
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        db.run(`
+            CREATE TABLE IF NOT EXISTS closed_dates (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                date TEXT UNIQUE NOT NULL,
+                reason TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `);
     }

@@ -28,19 +28,19 @@ window.addEventListener("load", () => {
       // Phones
       config.innerRadius = size * 0.42;
       config.outerRadius = size * 0.64;
-      config.particleCount = 700;
+      config.particleCount = 480;
       config.dotMaxSize = 1.725;
     } else if (window.innerWidth <= 992) {
       // Tablets
       config.innerRadius = size * 0.24;
       config.outerRadius = size * 0.37;
-      config.particleCount = 1200;
+      config.particleCount = 850;
       config.dotMaxSize = 2;
     } else {
       // Desktop
       config.innerRadius = 280;
       config.outerRadius = 440;
-      config.particleCount = 1600;
+      config.particleCount = 1150;
       config.dotMaxSize = 2.5;
     }
 
@@ -220,16 +220,13 @@ document.addEventListener("DOMContentLoaded", () => {
   // 3. APPOINTMENT SCHEDULING LOGIC
   // ==========================================
   
-  // We need to use a different URL for the backend when deployed vs. when running locally.
-  // Your GitHub Pages site will be on HTTPS, so your backend must also be on HTTPS.
+  // Use the deployed API on GitHub Pages and the local backend when running locally.
   const isProduction = window.location.hostname.includes('github.io');
-  
-  // IMPORTANT: You must deploy your backend to a service like Render or Vercel
-  // and replace this placeholder URL with your actual public backend URL.
-  const PRODUCTION_URL = 'https://freshcut-m19.onrender.com'; 
+  const PRODUCTION_URL = 'https://freshcut-m19.onrender.com';
   const LOCAL_URL = `http://${window.location.hostname}:3000`;
 
-  const apiHost = 'https://freshcut-m19.onrender.com';
+  const apiHost = isProduction ? PRODUCTION_URL : LOCAL_URL;
+  const customerTokenKey = "freshcutCustomerToken";
   let displayedDate = new Date();
   displayedDate.setDate(1); // Set to the first of the month to avoid month-end issues
 
@@ -471,6 +468,28 @@ document.addEventListener("DOMContentLoaded", () => {
 const form = document.getElementById("bookingForm");
 const confirmBox = document.getElementById("confirmBox");
 
+function normalizePhone(phone) {
+  return String(phone || "").replace(/[^\d+]/g, "");
+}
+
+function isValidPhone(phone) {
+  const normalized = normalizePhone(phone);
+
+  return /^08\d{8}$/.test(normalized) ||
+         /^\+3598\d{8}$/.test(normalized) ||
+         /^3598\d{8}$/.test(normalized);
+}
+
+function isValidEmail(email) {
+  const trimmed = String(email || "").trim();
+
+  if (!trimmed) {
+    return true;
+  }
+
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmed);
+}
+
 if (form && confirmBox) {
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
@@ -482,11 +501,23 @@ if (form && confirmBox) {
     }
 
     const formData = new FormData(form);
+    const phone = formData.get("phone");
+    const email = formData.get("email");
+
+    if (!isValidPhone(phone)) {
+      alert("Моля, въведете валиден телефонен номер. Пример: 0888123456 или +359888123456.");
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      alert("Моля, въведете валиден имейл адрес или оставете полето празно.");
+      return;
+    }
 
     const booking = {
       name: formData.get("name"),
-      phone: formData.get("phone"),
-      email: formData.get("email"),
+      phone: phone,
+      email: String(email || "").trim(),
       service: formData.get("service"),
       date: selectedDate,
       time: selectedTime,
@@ -501,6 +532,9 @@ if (form && confirmBox) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(localStorage.getItem(customerTokenKey)
+            ? { Authorization: `Bearer ${localStorage.getItem(customerTokenKey)}` }
+            : {}),
         },
         body: JSON.stringify(booking),
       });

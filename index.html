@@ -29,6 +29,7 @@
       <a href="#services">Услуги</a>
       <a href="#reviews">Отзиви</a>
       <a href="#contact">Контакти</a>
+      <a href="account.html">Моят профил</a>
     </div>
 
     <!-- Added 'trigger-booking' class and changed href -->
@@ -47,6 +48,7 @@
     <a href="#services" class="mobile-link">Услуги</a>
     <a href="#reviews" class="mobile-link">Отзиви</a>
     <a href="#contact" class="mobile-link">Контакти</a>
+    <a href="account.html" class="mobile-link">Моят профил</a>
     <!-- Added 'trigger-booking' class and changed href -->
     <a href="javascript:void(0)" class="mobile-cta trigger-booking">Запази час</a>
   </div>
@@ -456,6 +458,9 @@
           id="phone"
           name="phone"
           required
+          inputmode="tel"
+          pattern="[+0-9\s() -]{10,18}"
+          title="Пример: 0888123456 или +359888123456"
           placeholder="08xx xxx xxx"
         >
       </div>
@@ -471,6 +476,7 @@
           type="email"
           id="email"
           name="email"
+          inputmode="email"
           placeholder="example@email.com"
         >
       </div>
