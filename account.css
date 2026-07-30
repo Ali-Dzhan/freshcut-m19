@@ -143,6 +143,19 @@
 }
 
 .provider-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+
+.provider-btn:hover {
+  border-color: rgba(120, 185, 60, 0.45);
+  color: var(--green-hi);
+}
+
+button.provider-btn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
 }

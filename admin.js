@@ -1,5 +1,5 @@
 const PRODUCTION_URL = 'https://freshcut-m19.onrender.com';
-const LOCAL_URL = `http://${window.location.hostname}:3000`;
+const LOCAL_URL = `http://${window.location.hostname}:3001`;
 const isProduction = window.location.hostname.includes('github.io');
 const apiHost = isProduction ? PRODUCTION_URL : LOCAL_URL;
 

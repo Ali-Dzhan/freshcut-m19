@@ -8,8 +8,8 @@ window.addEventListener("load", () => {
     innerRadius: 0,
     outerRadius: 0,
     particleCount: 0,
-    dotMinSize: 0.325,
-    dotMaxSize: 2.5,
+    dotMinSize: 0.45,
+    dotMaxSize: 2.4,
     baseColor: { h: 90, s: 70, l: 50 },
     highColor: { h: 90, s: 90, l: 70 },
     flowSpeed: 0.015,
@@ -17,10 +17,20 @@ window.addEventListener("load", () => {
   };
 
   let particles = [];
+  let animationFrameId = null;
+  let isHeroVisible = true;
+  let lastFrameTime = 0;
+  let resizeTimer = null;
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const targetFrameDuration = prefersReducedMotion ? 80 : (window.innerWidth <= 576 ? 50 : 33);
+  const renderScale = Math.min(window.devicePixelRatio || 1, 1.35);
 
   function resizeCanvas() {
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
+    const displayWidth = canvas.offsetWidth;
+    const displayHeight = canvas.offsetHeight;
+
+    canvas.width = Math.round(displayWidth * renderScale);
+    canvas.height = Math.round(displayHeight * renderScale);
 
     const size = Math.min(canvas.width, canvas.height);
 
@@ -28,19 +38,19 @@ window.addEventListener("load", () => {
       // Phones
       config.innerRadius = size * 0.42;
       config.outerRadius = size * 0.64;
-      config.particleCount = 700;
+      config.particleCount = 260;
       config.dotMaxSize = 1.725;
     } else if (window.innerWidth <= 992) {
       // Tablets
       config.innerRadius = size * 0.24;
       config.outerRadius = size * 0.37;
-      config.particleCount = 1200;
+      config.particleCount = 480;
       config.dotMaxSize = 2;
     } else {
       // Desktop
-      config.innerRadius = 280;
-      config.outerRadius = 440;
-      config.particleCount = 1600;
+      config.innerRadius = 280 * renderScale;
+      config.outerRadius = 440 * renderScale;
+      config.particleCount = 720;
       config.dotMaxSize = 2.5;
     }
 
@@ -126,10 +136,8 @@ window.addEventListener("load", () => {
         (config.highColor.l - config.baseColor.l) *
         this.colorIntensity;
 
-      ctx.shadowBlur = this.size * 4;
-      ctx.shadowColor = `hsla(${h}, ${s}%, ${l}%, ${
-        0.6 + this.colorIntensity * 0.4
-      })`;
+      ctx.shadowBlur = this.colorIntensity > 0.75 ? this.size * 2 : 0;
+      ctx.shadowColor = `hsla(${h}, ${s}%, ${l}%, 0.65)`;
 
       ctx.fillStyle = `hsla(${h}, ${s}%, ${l}%, 0.9)`;
 
@@ -155,21 +163,74 @@ window.addEventListener("load", () => {
   }
 
   resizeCanvas();
+  drawFrame(0);
 
-  window.addEventListener("resize", resizeCanvas);
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resizeCanvas, 150);
+  }, { passive: true });
 
-  function animate(time) {
+  function drawFrame(time) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     particles.forEach((particle) => {
       particle.update(time * 0.001);
       particle.draw();
     });
-
-    requestAnimationFrame(animate);
   }
 
-  requestAnimationFrame(animate);
+  function animate(time) {
+    if (!isHeroVisible || document.hidden) {
+      animationFrameId = null;
+      return;
+    }
+
+    if (time - lastFrameTime < targetFrameDuration) {
+      animationFrameId = requestAnimationFrame(animate);
+      return;
+    }
+
+    lastFrameTime = time;
+    drawFrame(time);
+
+    animationFrameId = requestAnimationFrame(animate);
+  }
+
+  function startAnimation() {
+    if (!animationFrameId) {
+      animationFrameId = requestAnimationFrame(animate);
+    }
+  }
+
+  function stopAnimation() {
+    if (animationFrameId) {
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = null;
+    }
+  }
+
+  if ("IntersectionObserver" in window) {
+    const heroObserver = new IntersectionObserver((entries) => {
+      isHeroVisible = entries[0].isIntersecting;
+      if (isHeroVisible) {
+        startAnimation();
+      } else {
+        stopAnimation();
+      }
+    }, { threshold: 0.05 });
+
+    heroObserver.observe(canvas);
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      stopAnimation();
+    } else if (isHeroVisible) {
+      startAnimation();
+    }
+  });
+
+  startAnimation();
 });
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -227,9 +288,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // IMPORTANT: You must deploy your backend to a service like Render or Vercel
   // and replace this placeholder URL with your actual public backend URL.
   const PRODUCTION_URL = 'https://freshcut-m19.onrender.com'; 
-  const LOCAL_URL = `http://${window.location.hostname}:3000`;
+  const LOCAL_URL = `http://${window.location.hostname}:3001`;
 
-  const apiHost = 'https://freshcut-m19.onrender.com';
+  const apiHost = isProduction ? PRODUCTION_URL : LOCAL_URL;
   let displayedDate = new Date();
   displayedDate.setDate(1); // Set to the first of the month to avoid month-end issues
 
