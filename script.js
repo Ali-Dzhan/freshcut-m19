@@ -284,11 +284,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // We need to use a different URL for the backend when deployed vs. when running locally.
   // Your GitHub Pages site will be on HTTPS, so your backend must also be on HTTPS.
   const isProduction = window.location.hostname.includes('github.io');
-  
   // IMPORTANT: You must deploy your backend to a service like Render or Vercel
   // and replace this placeholder URL with your actual public backend URL.
   const PRODUCTION_URL = 'https://freshcut-m19.onrender.com'; 
-  const LOCAL_URL = `http://${window.location.hostname}:3001`;
+  const LOCAL_URL = 'http://localhost:3000';
 
   const apiHost = isProduction ? PRODUCTION_URL : LOCAL_URL;
   let displayedDate = new Date();

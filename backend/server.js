@@ -857,6 +857,64 @@ authenticateCustomer,
 
 });
 
+app.put(
+    "/customer/me",
+    authenticateCustomer,
+    (req, res) => {
+        const { name, email, phone } = req.body;
+        const customerId = req.customer.id;
+
+        const cleanEmail = String(email || "").trim().toLowerCase();
+
+        if (!name || !cleanEmail) {
+            return res.status(400).json({ message: "Име и имейл са задължителни." });
+        }
+
+        if (!isValidEmail(cleanEmail)) {
+            return res.status(400).json({ message: "Невалиден имейл адрес." });
+        }
+
+        if (phone && !isValidPhone(phone)) {
+            return res.status(400).json({ message: "Невалиден телефонен номер." });
+        }
+
+        db.run(
+            `UPDATE customers SET name = ?, email = ?, phone = ? WHERE id = ?`,
+            [name, cleanEmail, phone || null, customerId],
+            function (err) {
+                if (err) {
+                    if (err.message.includes("UNIQUE")) {
+                        return res.status(409).json({ message: "Клиент с този имейл вече съществува." });
+                    }
+                    return res.status(500).json({ error: err.message });
+                }
+
+                db.get(`SELECT id, name, email, phone, created_at FROM customers WHERE id = ?`, [customerId], (err, customer) => {
+                    if (err) {
+                        return res.status(500).json({ error: err.message });
+                    }
+                    if (!customer) {
+                        return res.status(404).json({ message: "Customer not found after update." });
+                    }
+                    
+                    const customerData = {
+                        id: customer.id,
+                        name: customer.name,
+                        email: customer.email,
+                        phone: customer.phone,
+                        created_at: customer.created_at
+                    };
+
+                    res.json({
+                        ...customerData,
+                        token: signCustomerToken(customerData)
+                    });
+                });
+            }
+        );
+    }
+);
+
 app.get(
 "/customer/appointments",
 authenticateCustomer,
