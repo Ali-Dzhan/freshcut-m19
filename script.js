@@ -38,8 +38,8 @@ window.addEventListener("load", () => {
       // Phones
       config.innerRadius = size * 0.42;
       config.outerRadius = size * 0.64;
-      config.particleCount = 260;
-      config.dotMaxSize = 1.725;
+      config.particleCount = 360;
+      config.dotMaxSize = 1.825;
     } else if (window.innerWidth <= 992) {
       // Tablets
       config.innerRadius = size * 0.24;
