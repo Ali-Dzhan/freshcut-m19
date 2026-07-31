@@ -6,6 +6,10 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const path = require("path");
+const session = require("express-session");
+const passport = require("passport");
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const FacebookStrategy = require("passport-facebook").Strategy;
 
 const db = require("./database");
 const PORT = process.env.PORT || 3000; // Updated to respect Render's dynamic port assignment
@@ -16,6 +20,10 @@ const {
 } = require("./services/emailService");
 
 const JWT_SECRET = "freshcut-secret-key";
+const SESSION_SECRET = process.env.SESSION_SECRET || "freshcut-session-secret";
+const PUBLIC_APP_URL = process.env.PUBLIC_APP_URL || `http://localhost:${PORT}`;
+const hasGoogleOAuth = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
+const hasFacebookOAuth = Boolean(process.env.FACEBOOK_APP_ID && process.env.FACEBOOK_APP_SECRET);
 
 // ==========================
 // CORS CONFIGURATION
@@ -48,6 +56,17 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(session({
+    secret: SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        sameSite: "lax",
+        secure: PUBLIC_APP_URL.startsWith("https://")
+    }
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 const publicDir = path.join(__dirname, "..");
 
 app.use("/photos", express.static(path.join(publicDir, "photos")));
@@ -387,10 +406,219 @@ function signCustomerToken(customer) {
     );
 }
 
+function callbackUrl(pathname) {
+    return `${PUBLIC_APP_URL}${pathname}`;
+}
+
+function socialAuthUnavailable(res, provider) {
+    return res.redirect(`/account?authError=${encodeURIComponent(`${provider} login is not configured.`)}`);
+}
+
+function finishSocialLogin(res, customer) {
+    const token = signCustomerToken(customer);
+
+    return res.redirect(`/account?token=${encodeURIComponent(token)}`);
+}
+
+function findOrCreateSocialCustomer(profile, done) {
+    const provider = profile.provider;
+    const providerId = profile.id;
+    const email = String(profile.emails?.[0]?.value || "").trim().toLowerCase();
+    const name = profile.displayName || email || `${provider} user`;
+
+    if (!email) {
+        return done(null, false, {
+            message: "Email permission is required."
+        });
+    }
+
+    db.get(
+        `
+        SELECT *
+        FROM customers
+        WHERE email = ?
+        `,
+        [email],
+        (findErr, existingCustomer)=>{
+            if (findErr) {
+                return done(findErr);
+            }
+
+            if (existingCustomer) {
+                db.run(
+                    `
+                    UPDATE customers
+                    SET name = COALESCE(NULLIF(name, ''), ?),
+                        auth_provider = ?,
+                        provider_id = COALESCE(provider_id, ?)
+                    WHERE id = ?
+                    `,
+                    [
+                        name,
+                        provider,
+                        providerId,
+                        existingCustomer.id
+                    ],
+                    (updateErr)=>{
+                        if (updateErr) {
+                            return done(updateErr);
+                        }
+
+                        return done(null, {
+                            id: existingCustomer.id,
+                            name: existingCustomer.name || name,
+                            email: existingCustomer.email,
+                            phone: existingCustomer.phone
+                        });
+                    }
+                );
+
+                return;
+            }
+
+            db.run(
+                `
+                INSERT INTO customers
+                (
+                    name,
+                    email,
+                    phone,
+                    password,
+                    auth_provider,
+                    provider_id
+                )
+                VALUES (?,?,?,?,?,?)
+                `,
+                [
+                    name,
+                    email,
+                    null,
+                    "",
+                    provider,
+                    providerId
+                ],
+                function(createErr){
+                    if (createErr) {
+                        return done(createErr);
+                    }
+
+                    return done(null, {
+                        id: this.lastID,
+                        name,
+                        email,
+                        phone: null
+                    });
+                }
+            );
+        }
+    );
+}
+
+passport.serializeUser((customer, done) => {
+    done(null, customer);
+});
+
+passport.deserializeUser((customer, done) => {
+    done(null, customer);
+});
+
+if (hasGoogleOAuth) {
+    passport.use(new GoogleStrategy(
+        {
+            clientID: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            callbackURL: callbackUrl("/auth/google/callback")
+        },
+        (accessToken, refreshToken, profile, done) => {
+            findOrCreateSocialCustomer(profile, done);
+        }
+    ));
+}
+
+if (hasFacebookOAuth) {
+    passport.use(new FacebookStrategy(
+        {
+            clientID: process.env.FACEBOOK_APP_ID,
+            clientSecret: process.env.FACEBOOK_APP_SECRET,
+            callbackURL: callbackUrl("/auth/facebook/callback"),
+            profileFields: ["id", "displayName", "emails"]
+        },
+        (accessToken, refreshToken, profile, done) => {
+            findOrCreateSocialCustomer(profile, done);
+        }
+    ));
+}
+
 
 // ==========================
 // CUSTOMER AUTH
 // ==========================
+
+app.get("/auth/google",(req,res,next)=>{
+
+    if(!hasGoogleOAuth){
+        return socialAuthUnavailable(res, "Google");
+    }
+
+    return passport.authenticate("google", {
+        scope: ["profile", "email"],
+        session: false
+    })(req,res,next);
+
+});
+
+app.get("/auth/google/callback",(req,res,next)=>{
+
+    if(!hasGoogleOAuth){
+        return socialAuthUnavailable(res, "Google");
+    }
+
+    passport.authenticate("google", {
+        session: false
+    }, (err, customer, info)=>{
+
+        if(err || !customer){
+            return res.redirect(`/account?authError=${encodeURIComponent(info?.message || err?.message || "Google login failed.")}`);
+        }
+
+        return finishSocialLogin(res, customer);
+
+    })(req,res,next);
+
+});
+
+app.get("/auth/facebook",(req,res,next)=>{
+
+    if(!hasFacebookOAuth){
+        return socialAuthUnavailable(res, "Facebook");
+    }
+
+    return passport.authenticate("facebook", {
+        scope: ["email"],
+        session: false
+    })(req,res,next);
+
+});
+
+app.get("/auth/facebook/callback",(req,res,next)=>{
+
+    if(!hasFacebookOAuth){
+        return socialAuthUnavailable(res, "Facebook");
+    }
+
+    passport.authenticate("facebook", {
+        session: false
+    }, (err, customer, info)=>{
+
+        if(err || !customer){
+            return res.redirect(`/account?authError=${encodeURIComponent(info?.message || err?.message || "Facebook login failed.")}`);
+        }
+
+        return finishSocialLogin(res, customer);
+
+    })(req,res,next);
+
+});
 
 app.post("/customer/register", async (req,res)=>{
 
@@ -544,7 +772,7 @@ app.post("/customer/login",(req,res)=>{
             }
 
 
-            if(!customer){
+            if(!customer || !customer.password){
 
                 return res.status(401).json({
                     message:"Invalid login."

@@ -64,11 +64,30 @@ const db = new sqlite3.Database(dbPath, (err) => {
                 name TEXT NOT NULL,
                 email TEXT UNIQUE NOT NULL,
                 phone TEXT,
-                password TEXT NOT NULL,
+                password TEXT,
                 auth_provider TEXT DEFAULT 'local',
+                provider_id TEXT,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `);
+
+        db.all(`PRAGMA table_info(customers)`, [], (tableErr, columns) => {
+            if (tableErr) {
+                console.error("Customers migration failed:", tableErr.message);
+                return;
+            }
+
+            const hasAuthProvider = columns.some(column => column.name === "auth_provider");
+            const hasProviderId = columns.some(column => column.name === "provider_id");
+
+            if (!hasAuthProvider) {
+                db.run(`ALTER TABLE customers ADD COLUMN auth_provider TEXT DEFAULT 'local'`);
+            }
+
+            if (!hasProviderId) {
+                db.run(`ALTER TABLE customers ADD COLUMN provider_id TEXT`);
+            }
+        });
 
         db.run(`
             CREATE TABLE IF NOT EXISTS closed_dates (

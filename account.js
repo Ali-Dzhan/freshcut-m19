@@ -1,6 +1,6 @@
 (() => {
 const PRODUCTION_URL = 'https://freshcut-m19.onrender.com';
-const LOCAL_URL = `http://${window.location.hostname}:3000`;
+const LOCAL_URL = `http://${window.location.hostname}:3001`;
 const isProduction = window.location.hostname.includes('github.io');
 const apiHost = isProduction ? PRODUCTION_URL : LOCAL_URL;
 
@@ -19,8 +19,22 @@ const emptyState = document.getElementById('emptyState');
 const refreshBtn = document.getElementById('refreshBtn');
 const logoutBtn = document.getElementById('logoutBtn');
 const bookingButtons = document.querySelectorAll('.trigger-booking');
+const googleLoginBtn = document.getElementById('googleLoginBtn');
+const facebookLoginBtn = document.getElementById('facebookLoginBtn');
 
 let currentCustomer = null;
+
+const urlParams = new URLSearchParams(window.location.search);
+const oauthToken = urlParams.get('token');
+const oauthError = urlParams.get('authError');
+
+if (googleLoginBtn) {
+  googleLoginBtn.href = `${apiHost}/auth/google`;
+}
+
+if (facebookLoginBtn) {
+  facebookLoginBtn.href = `${apiHost}/auth/facebook`;
+}
 
 function getToken() {
   return localStorage.getItem(tokenKey);
@@ -56,6 +70,12 @@ function switchAuthMode(mode) {
   loginForm.classList.toggle('hidden', !isLogin);
   registerForm.classList.toggle('hidden', isLogin);
   setMessage(authMessage, '');
+}
+
+function cleanOAuthParams() {
+  if (!oauthToken && !oauthError) return;
+
+  window.history.replaceState({}, document.title, window.location.pathname);
 }
 
 function formatDate(dateValue) {
@@ -267,7 +287,16 @@ logoutBtn.addEventListener('click', () => {
   showAuth();
 });
 
-if (getToken()) {
+if (oauthToken) {
+  setToken(oauthToken);
+  cleanOAuthParams();
+  loadProfile();
+} else if (oauthError) {
+  clearToken();
+  showAuth();
+  setMessage(authMessage, oauthError);
+  cleanOAuthParams();
+} else if (getToken()) {
   loadProfile();
 } else {
   showAuth();
