@@ -236,6 +236,71 @@ function authenticateAdmin(req,res,next){
 
 }
 
+
+// ==========================
+// ADMIN SERVICES
+// ==========================
+
+app.get("/admin/services", authenticateAdmin, (req, res) => {
+    db.all("SELECT * FROM services ORDER BY display_order, name", [], (err, rows) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(rows);
+    });
+});
+
+app.post("/admin/services", authenticateAdmin, (req, res) => {
+    const { name, price, duration, description, display_order } = req.body;
+    if (!name || price === undefined) {
+        return res.status(400).json({ message: "Name and price are required." });
+    }
+
+    db.run(
+        `INSERT INTO services (name, price, duration, description, display_order) VALUES (?, ?, ?, ?, ?)`,
+        [name, price, duration, description, display_order],
+        function (err) {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+            res.json({ success: true, id: this.lastID });
+        }
+    );
+});
+
+app.put("/admin/services/:id", authenticateAdmin, (req, res) => {
+    const { name, price, duration, description, display_order } = req.body;
+    if (!name || price === undefined) {
+        return res.status(400).json({ message: "Name and price are required." });
+    }
+
+    db.run(
+        `UPDATE services SET name = ?, price = ?, duration = ?, description = ?, display_order = ? WHERE id = ?`,
+        [name, price, duration, description, display_order, req.params.id],
+        function (err) {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+            if (this.changes === 0) {
+                return res.status(404).json({ message: "Service not found." });
+            }
+            res.json({ success: true });
+        }
+    );
+});
+
+app.delete("/admin/services/:id", authenticateAdmin, (req, res) => {
+    db.run(`DELETE FROM services WHERE id = ?`, [req.params.id], function (err) {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        if (this.changes === 0) {
+            return res.status(404).json({ message: "Service not found." });
+        }
+        res.json({ success: true });
+    });
+});
+
 function authenticateCustomer(req,res,next){
 
 
