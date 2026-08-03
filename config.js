@@ -1,0 +1,1 @@
+window.FRESHCUT_CONFIG = window.FRESHCUT_CONFIG || {};

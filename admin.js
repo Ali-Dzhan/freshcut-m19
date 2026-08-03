@@ -1,7 +1,6 @@
-const PRODUCTION_URL = 'https://freshcut-m19.onrender.com';
-const LOCAL_URL = `http://${window.location.hostname}:3001`;
-const isProduction = window.location.hostname.includes('github.io');
-const apiHost = isProduction ? PRODUCTION_URL : LOCAL_URL;
+const configuredApiBaseUrl = window.FRESHCUT_CONFIG?.apiBaseUrl || "";
+const isLocalHost = !window.location.hostname || ["localhost", "127.0.0.1"].includes(window.location.hostname);
+const apiHost = configuredApiBaseUrl || (isLocalHost ? `http://${window.location.hostname}:3001` : "");
 
 const tokenKey = 'freshcutAdminToken';
 const loginView = document.getElementById('loginView');

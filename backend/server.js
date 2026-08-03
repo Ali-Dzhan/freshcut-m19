@@ -19,18 +19,24 @@ const {
     sendCustomerConfirmation
 } = require("./services/emailService");
 
-const JWT_SECRET = "freshcut-secret-key";
+const JWT_SECRET = process.env.JWT_SECRET || "freshcut-local-secret-key";
 const SESSION_SECRET = process.env.SESSION_SECRET || "freshcut-session-secret";
-const PUBLIC_APP_URL = process.env.PUBLIC_APP_URL || `http://localhost:${PORT}`;
+const PUBLIC_APP_URL = (
+    process.env.PUBLIC_APP_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "") ||
+    `http://localhost:${PORT}`
+).replace(/\/$/, "");
+const PUBLIC_API_BASE_URL = (process.env.PUBLIC_API_BASE_URL || "").replace(/\/$/, "");
 const hasGoogleOAuth = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
 const hasFacebookOAuth = Boolean(process.env.FACEBOOK_APP_ID && process.env.FACEBOOK_APP_SECRET);
 
 // ==========================
 // CORS CONFIGURATION
 // ==========================
-const allowedOrigins = [
-  'https://ali-dzhan.github.io'
-];
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || PUBLIC_APP_URL)
+    .split(",")
+    .map(origin => origin.trim().replace(/\/$/, ""))
+    .filter(Boolean);
 
 function isLocalOrigin(origin) {
     try {
@@ -68,6 +74,15 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 const publicDir = path.join(__dirname, "..");
+
+app.get("/config.js", (req, res) => {
+    res.type("application/javascript");
+    res.send(
+        `window.FRESHCUT_CONFIG=${JSON.stringify({
+            apiBaseUrl: PUBLIC_API_BASE_URL
+        })};`
+    );
+});
 
 app.use("/photos", express.static(path.join(publicDir, "photos")));
 app.use(express.static(publicDir));

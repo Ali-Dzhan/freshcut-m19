@@ -6,6 +6,11 @@ defaultClient.authentications["api-key"].apiKey =
     process.env.BREVO_API_KEY;
 
 const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+const PUBLIC_APP_URL = (
+    process.env.PUBLIC_APP_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "") ||
+    "http://localhost:3001"
+).replace(/\/$/, "");
 
 function emailTemplate(content) {
 return `
@@ -48,7 +53,7 @@ border-bottom: 1px solid rgba(120, 185, 60, 0.15);
 padding-bottom: 25px;
 ">
 
-<img src="https://freshcut-m19.onrender.com/photos/logo.jpg" alt="FreshCut M19 Logo" style="
+<img src="${PUBLIC_APP_URL}/photos/logo.jpg" alt="FreshCut M19 Logo" style="
 width: 70px;
 height: 70px;
 border-radius: 50%;
@@ -178,7 +183,7 @@ padding: 20px 25px;
 
 </div>
 
-<a href="https://freshcut-m19.onrender.com/admin"
+<a href="${PUBLIC_APP_URL}/admin"
 style="
 display: block;
 margin-top: 30px;
