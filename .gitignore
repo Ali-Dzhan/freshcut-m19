@@ -1,1 +1,3 @@
 backend/database/freshcut.db
+.env
+.env.local

@@ -281,15 +281,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // 3. APPOINTMENT SCHEDULING LOGIC
   // ==========================================
   
-  // We need to use a different URL for the backend when deployed vs. when running locally.
-  // Your GitHub Pages site will be on HTTPS, so your backend must also be on HTTPS.
-  const isProduction = window.location.hostname.includes('github.io');
-  // IMPORTANT: You must deploy your backend to a service like Render or Vercel
-  // and replace this placeholder URL with your actual public backend URL.
-  const PRODUCTION_URL = 'https://freshcut-m19.onrender.com'; 
-  const LOCAL_URL = 'http://localhost:3000';
-
-  const apiHost = isProduction ? PRODUCTION_URL : LOCAL_URL;
+  const configuredApiBaseUrl = window.FRESHCUT_CONFIG?.apiBaseUrl || "";
+  const isLocalHost = !window.location.hostname || ["localhost", "127.0.0.1"].includes(window.location.hostname);
+  const apiHost = configuredApiBaseUrl || (isLocalHost ? `http://${window.location.hostname}:3001` : "");
   let displayedDate = new Date();
   displayedDate.setDate(1); // Set to the first of the month to avoid month-end issues
 
