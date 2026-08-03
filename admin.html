@@ -114,6 +114,20 @@
         </div>
       </section>
 
+      <section class="schedule-panel" aria-label="Услуги">
+        <div class="schedule-panel-head">
+          <div>
+            <p class="mono-label">CATALOG</p>
+            <h2>Услуги</h2>
+          </div>
+          <button class="admin-primary" id="addNewServiceBtn" type="button">Добави услуга</button>
+        </div>
+        <div class="services-list" id="servicesList"></div>
+        <div class="empty-state compact hidden" id="servicesEmpty">
+          Няма добавени услуги.
+        </div>
+      </section>
+
       <div class="appointments-table-wrap">
         <table class="appointments-table">
           <thead>
@@ -134,6 +148,44 @@
       </div>
     </section>
   </main>
+
+  <div class="modal-overlay hidden" id="serviceModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="serviceModalTitle">Добави услуга</h3>
+        <button class="close-modal" id="closeServiceModalBtn" type="button">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="serviceForm" class="admin-form">
+          <input type="hidden" id="serviceId" name="id">
+          <div>
+            <label for="serviceName">Име на услугата</label>
+            <input id="serviceName" name="name" type="text" required>
+          </div>
+          <div class="form-row">
+            <div>
+              <label for="servicePrice">Цена (€)</label>
+              <input id="servicePrice" name="price" type="number" step="0.01" required>
+            </div>
+            <div>
+              <label for="serviceOrder">Поредност</label>
+              <input id="serviceOrder" name="display_order" type="number" step="1" placeholder="напр. 1">
+            </div>
+          </div>
+          <div>
+            <label for="serviceDuration">Времетраене</label>
+            <input id="serviceDuration" name="duration" type="text" placeholder="напр. 30 мин">
+          </div>
+          <div>
+            <label for="serviceDescription">Описание (по желание)</label>
+            <textarea id="serviceDescription" name="description"></textarea>
+          </div>
+          <p class="form-message" id="serviceFormMessage" role="alert"></p>
+          <button class="admin-primary" type="submit">Запази</button>
+        </form>
+      </div>
+    </div>
+  </div>
 
   <script src="config.js"></script>
   <script src="admin.js"></script>

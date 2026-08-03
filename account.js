@@ -12,11 +12,17 @@ const loginForm = document.getElementById('loginForm');
 const registerForm = document.getElementById('registerForm');
 const authMessage = document.getElementById('authMessage');
 const profileMessage = document.getElementById('profileMessage');
-const profileMeta = document.getElementById('profileMeta');
 const appointmentsList = document.getElementById('appointmentsList');
 const emptyState = document.getElementById('emptyState');
 const refreshBtn = document.getElementById('refreshBtn');
 const logoutBtn = document.getElementById('logoutBtn');
+const editProfileBtn = document.getElementById('editProfileBtn');
+const cancelEditBtn = document.getElementById('cancelEditBtn');
+const profileForm = document.getElementById('profileForm');
+const profileFormActions = document.getElementById('profileFormActions');
+const profileName = document.getElementById('profileName');
+const profileEmail = document.getElementById('profileEmail');
+const profilePhone = document.getElementById('profilePhone');
 const bookingButtons = document.querySelectorAll('.trigger-booking');
 const googleLoginBtn = document.getElementById('googleLoginBtn');
 const facebookLoginBtn = document.getElementById('facebookLoginBtn');
@@ -167,6 +173,20 @@ function fillBookingFormFromProfile() {
   if (phoneInput && currentCustomer.phone) phoneInput.value = currentCustomer.phone;
 }
 
+function toggleProfileEdit(isEditing) {
+  profileName.readOnly = !isEditing;
+  profileEmail.readOnly = !isEditing;
+  profilePhone.readOnly = !isEditing;
+  profileFormActions.classList.toggle('hidden', !isEditing);
+  editProfileBtn.classList.toggle('hidden', isEditing);
+}
+
+function fillProfileForm(customer) {
+  profileName.value = customer.name || '';
+  profileEmail.value = customer.email || '';
+  profilePhone.value = customer.phone || '';
+}
+
 async function loadProfile() {
   setMessage(profileMessage, 'Зареждане...', true);
 
@@ -177,7 +197,7 @@ async function loadProfile() {
     ]);
 
     currentCustomer = customer;
-    profileMeta.textContent = `${customer.name} · ${customer.email}`;
+    fillProfileForm(customer);
     fillBookingFormFromProfile();
     renderAppointments(appointments);
     setMessage(profileMessage, `Резервации: ${appointments.length}`, true);
@@ -249,6 +269,49 @@ registerForm.addEventListener('submit', async event => {
     await loadProfile();
   } catch (error) {
     setMessage(authMessage, error.message);
+  } finally {
+    submitButton.disabled = false;
+  }
+});
+
+editProfileBtn.addEventListener('click', () => {
+  toggleProfileEdit(true);
+  profileName.focus();
+});
+
+cancelEditBtn.addEventListener('click', () => {
+  toggleProfileEdit(false);
+  fillProfileForm(currentCustomer); // Restore original values
+  setMessage(profileMessage, '');
+});
+
+profileForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const submitButton = profileForm.querySelector('button[type="submit"]');
+  const formData = new FormData(profileForm);
+
+  submitButton.disabled = true;
+  setMessage(profileMessage, 'Запазване...', true);
+
+  try {
+    const responseData = await apiRequest('/customer/me', {
+      method: 'PUT',
+      body: JSON.stringify({
+        name: formData.get('name'),
+        email: formData.get('email'),
+        phone: formData.get('phone'),
+      })
+    });
+
+    if (responseData.token) {
+      setToken(responseData.token);
+    }
+    currentCustomer = responseData;
+    fillProfileForm(currentCustomer);
+    toggleProfileEdit(false);
+    setMessage(profileMessage, 'Профилът е обновен успешно.', true);
+  } catch (error) {
+    setMessage(profileMessage, error.message);
   } finally {
     submitButton.disabled = false;
   }

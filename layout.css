@@ -921,3 +921,51 @@ footer .brand{
   width: 100%;
   padding: 20px 0;
 }
+
+
+.provider-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 14px 18px;
+
+    border: 1px solid #dcdcdc;
+    border-radius: 14px;
+
+    background: #fff;
+    color: #1f2937;
+
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 600;
+
+    transition: all .25s ease;
+    cursor: pointer;
+}
+
+.provider-btn:hover {
+    background: #f8f8f8;
+    border-color: #cfcfcf;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0,0,0,.08);
+}
+
+.provider-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+}
+
+.google-btn:hover {
+    color: #DB4437;
+}
+
+.facebook-btn:hover {
+    color: #1877F2;
+}

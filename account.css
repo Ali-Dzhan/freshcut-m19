@@ -160,6 +160,49 @@ button.provider-btn:disabled {
   cursor: not-allowed;
 }
 
+.profile-form {
+  margin-top: 16px;
+  padding: 24px;
+  background: rgba(15, 18, 15, 0.66);
+  border: 1px solid rgba(244, 253, 255, 0.08);
+  border-radius: 8px;
+}
+
+.profile-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.profile-form input[readonly] {
+  background: transparent;
+  border-color: transparent;
+  padding-left: 0;
+  cursor: default;
+  color: var(--white);
+}
+
+.profile-form input[readonly]:focus {
+  box-shadow: none;
+  border-color: transparent;
+}
+
+.profile-form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+  justify-content: flex-start;
+}
+
+.profile-actions .account-secondary.hidden,
+.profile-form-actions.hidden {
+  display: none !important;
+}
+
+.appointments-title {
+  margin: 32px 0 16px;
+  font-size: 24px;
+}
 .profile-view {
   width: min(1080px, 100%);
   margin: 0 auto;
@@ -286,6 +329,10 @@ button.provider-btn:disabled {
   .profile-actions,
   .appointment-card {
     display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .profile-form-grid {
     grid-template-columns: 1fr;
   }
 

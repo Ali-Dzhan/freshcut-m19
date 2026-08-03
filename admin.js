@@ -23,9 +23,20 @@ const closedDateInput = document.getElementById('closedDateInput');
 const closedReasonInput = document.getElementById('closedReasonInput');
 const closedDatesList = document.getElementById('closedDatesList');
 const closedDatesEmpty = document.getElementById('closedDatesEmpty');
+const servicesList = document.getElementById('servicesList');
+const servicesEmpty = document.getElementById('servicesEmpty');
+const serviceModal = document.getElementById('serviceModal');
+const serviceForm = document.getElementById('serviceForm');
+const serviceModalTitle = document.getElementById('serviceModalTitle');
+const closeServiceModalBtn = document.getElementById('closeServiceModalBtn');
+const addNewServiceBtn = document.getElementById('addNewServiceBtn');
+const serviceIdInput = document.getElementById('serviceId');
+const serviceFormMessage = document.getElementById('serviceFormMessage');
 
 let appointments = [];
 let closedDates = [];
+let services = [];
+let currentService = null; // To hold service being edited
 
 function getToken() {
   return localStorage.getItem(tokenKey);
@@ -138,6 +149,27 @@ function renderClosedDates() {
   });
 }
 
+function renderServices() {
+  servicesList.innerHTML = '';
+  servicesEmpty.classList.toggle('hidden', services.length > 0);
+
+  services.forEach(service => {
+    const card = document.createElement('div');
+    card.className = 'service-card-admin';
+    card.innerHTML = `
+      <div class="info">
+        <strong>${escapeHtml(service.name)}</strong>
+        <span>${escapeHtml(service.price)} € &middot; ${escapeHtml(service.duration || '-')}</span>
+      </div>
+      <div class="actions">
+        <button class="admin-secondary edit-service-btn" data-id="${escapeHtml(service.id)}" type="button">Редактирай</button>
+        <button class="admin-secondary delete-service-btn" data-id="${escapeHtml(service.id)}" type="button">Изтрий</button>
+      </div>
+    `;
+    servicesList.appendChild(card);
+  });
+}
+
 async function apiRequest(path, options = {}) {
   const response = await fetch(`${apiHost}${path}`, {
     ...options,
@@ -186,6 +218,15 @@ async function loadClosedDates() {
   }
 }
 
+async function loadServices() {
+  try {
+    services = await apiRequest('/admin/services');
+    renderServices();
+  } catch (error) {
+    setMessage(dashboardMessage, error.message);
+  }
+}
+
 loginForm.addEventListener('submit', async event => {
   event.preventDefault();
   const submitButton = loginForm.querySelector('button[type="submit"]');
@@ -207,7 +248,7 @@ loginForm.addEventListener('submit', async event => {
     loginForm.reset();
     setMessage(loginMessage, '');
     showDashboard();
-    await Promise.all([loadAppointments(), loadClosedDates()]);
+    await Promise.all([loadAppointments(), loadClosedDates(), loadServices()]);
   } catch (error) {
     setMessage(loginMessage, error.message || 'Грешни данни за вход.');
   } finally {
@@ -307,8 +348,100 @@ statusFilter.addEventListener('change', renderAppointments);
 
 if (getToken()) {
   showDashboard();
-  loadAppointments();
-  loadClosedDates();
+  Promise.all([loadAppointments(), loadClosedDates(), loadServices()]);
 } else {
   showLogin();
 }
+
+function showServiceModal(service = null) {
+  currentService = service;
+  serviceForm.reset();
+  setMessage(serviceFormMessage, '');
+  if (service) {
+    serviceModalTitle.textContent = 'Редактирай услуга';
+    serviceIdInput.value = service.id;
+    serviceForm.querySelector('#serviceName').value = service.name;
+    serviceForm.querySelector('#servicePrice').value = service.price;
+    serviceForm.querySelector('#serviceDuration').value = service.duration || '';
+    serviceForm.querySelector('#serviceDescription').value = service.description || '';
+    serviceForm.querySelector('#serviceOrder').value = service.display_order || '';
+  } else {
+    serviceModalTitle.textContent = 'Добави услуга';
+    serviceIdInput.value = '';
+  }
+  serviceModal.classList.remove('hidden');
+}
+
+function hideServiceModal() {
+  serviceModal.classList.add('hidden');
+  currentService = null;
+}
+
+addNewServiceBtn.addEventListener('click', () => showServiceModal());
+closeServiceModalBtn.addEventListener('click', hideServiceModal);
+serviceModal.addEventListener('click', (e) => {
+  if (e.target === serviceModal) {
+    hideServiceModal();
+  }
+});
+
+serviceForm.addEventListener('submit', async event => {
+  event.preventDefault();
+  const submitButton = serviceForm.querySelector('button[type="submit"]');
+  const formData = new FormData(serviceForm);
+  const id = formData.get('id');
+
+  const serviceData = {
+    name: formData.get('name'),
+    price: formData.get('price'),
+    duration: formData.get('duration'),
+    description: formData.get('description'),
+    display_order: formData.get('display_order'),
+  };
+
+  const method = id ? 'PUT' : 'POST';
+  const path = id ? `/admin/services/${id}` : '/admin/services';
+
+  submitButton.disabled = true;
+  setMessage(serviceFormMessage, 'Запазване...', true);
+
+  try {
+    await apiRequest(path, { method, body: JSON.stringify(serviceData) });
+    hideServiceModal();
+    await loadServices();
+    setMessage(dashboardMessage, 'Услугата е запазена.', true);
+  } catch (error) {
+    setMessage(serviceFormMessage, error.message);
+  } finally {
+    submitButton.disabled = false;
+  }
+});
+
+servicesList.addEventListener('click', async event => {
+  const target = event.target;
+
+  if (target.matches('.edit-service-btn')) {
+    const id = target.dataset.id;
+    const service = services.find(s => String(s.id) === id);
+    if (service) {
+      showServiceModal(service);
+    }
+  }
+
+  if (target.matches('.delete-service-btn')) {
+    if (!confirm('Сигурни ли сте, че искате да изтриете тази услуга?')) return;
+
+    const id = target.dataset.id;
+    target.disabled = true;
+    setMessage(dashboardMessage, 'Изтриване...', true);
+
+    try {
+      await apiRequest(`/admin/services/${id}`, { method: 'DELETE' });
+      await loadServices();
+      setMessage(dashboardMessage, 'Услугата е изтрита.', true);
+    } catch (error) {
+      setMessage(dashboardMessage, error.message);
+      target.disabled = false;
+    }
+  }
+});

@@ -26,6 +26,17 @@ async function createOrUpdateAdmin() {
             )
         `);
 
+        db.run(`
+            CREATE TABLE IF NOT EXISTS services (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                price REAL NOT NULL,
+                duration TEXT,
+                description TEXT,
+                display_order INTEGER
+            )
+        `);
+
         db.run(
         `
         INSERT INTO admins (username, password)
